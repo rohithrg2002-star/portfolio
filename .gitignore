@@ -1,0 +1,16 @@
+# Ignore project progress logs
+chat_progress.md
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+*.local
+
+# Editor Configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

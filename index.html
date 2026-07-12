@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alex Carter | Lead Software Engineer & Systems Architect</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description"
+    content="Portfolio of Alex Carter, a Lead Software Engineer specializing in high-performance backends, custom Frappe/ERPNext applications, and scalable cloud architectures.">
+  <meta name="keywords"
+    content="Software Engineer, Full Stack Developer, Systems Architect, Frappe, ERPNext, Python, Django, React, Kubernetes, Cloud Infrastructure">
+  <meta name="author" content="Alex Carter">
+  <meta property="og:title" content="Alex Carter | Lead Software Engineer & Systems Architect">
+  <meta property="og:description"
+    content="Explore advanced backend systems, custom Frappe ERP applications, and high-performance cloud architectures.">
+  <meta property="og:image" content="assets/images/profile.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Typography & CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+
+  <!-- CDNs for External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <!-- Custom Loading Screen -->
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-terminal">
+        <div class="loader-line"><span class="loader-prompt">$</span> init_portfolio.sh</div>
+        <div class="loader-line loader-delay-1"><span class="loader-success">[OK]</span> Connecting to developer
+          database...</div>
+        <div class="loader-line loader-delay-2"><span class="loader-success">[OK]</span> Loading WebGL canvas
+          constellations...</div>
+        <div class="loader-line loader-delay-3"><span class="loader-success">[OK]</span> Bootstrapping premium design
+          tokens...</div>
+        <div class="loader-line loader-delay-4"><span class="loader-success">[OK]</span> Launching interactive desk
+          terminal...</div>
+      </div>
+      <div class="loader-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Three.js Canvas Background -->
+  <canvas id="three-bg"></canvas>
+
+  <!-- Floating Navigation -->
+  <nav class="glass-nav">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <span class="logo-bracket">&lt;</span>
+        <span class="logo-text">Alex.C</span>
+        <span class="logo-bracket">/&gt;</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#about" class="nav-item">About</a></li>
+        <li><a href="#projects" class="nav-item">Projects</a></li>
+        <li><a href="#experience" class="nav-item">Experience</a></li>
+        <li><a href="#skills" class="nav-item">Skills</a></li>
+        <li><a href="#open-source" class="nav-item">OS</a></li>
+        <li><a href="#blog" class="nav-item">Articles</a></li>
+        <li><a href="#contact" class="nav-item">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button id="terminal-toggle" class="nav-btn" title="Open Desktop Terminal (`)">
+          <i data-lucide="terminal"></i>
+        </button>
+        <button id="palette-toggle" class="nav-btn" title="Command Palette (Ctrl+K)">
+          <i data-lucide="command"></i>
+          <span class="btn-shortcut">⌘K</span>
+        </button>
+        <button id="theme-toggle" class="nav-btn" title="Toggle Theme">
+          <i data-lucide="sun" class="theme-icon-light"></i>
+          <i data-lucide="moon" class="theme-icon-dark"></i>
+        </button>
+      </div>
+      <button class="mobile-nav-toggle" aria-label="Toggle Menu">
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu-overlay">
+    <div class="mobile-menu">
+      <ul class="mobile-nav-links">
+        <li><a href="#about" class="mobile-item">About</a></li>
+        <li><a href="#projects" class="mobile-item">Projects</a></li>
+        <li><a href="#experience" class="mobile-item">Experience</a></li>
+        <li><a href="#skills" class="mobile-item">Skills</a></li>
+        <li><a href="#open-source" class="mobile-item">OS</a></li>
+        <li><a href="#blog" class="mobile-item">Articles</a></li>
+        <li><a href="#contact" class="mobile-item">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <main class="content-wrapper">
+
+    <!-- 1. HERO SECTION -->
+    <section id="hero" class="hero-section">
+      <div class="hero-content">
+        <div class="hero-badge" data-gsap="fade-in">
+          <span class="badge-dot"></span> Available for custom contracts & consulting
+        </div>
+        <h1 class="hero-title" data-gsap="fade-up">
+          Building Systems That <span class="gradient-text">Scale.</span>
+        </h1>
+        <p class="hero-subtitle" data-gsap="fade-up" data-gsap-delay="100">
+          I'm <strong>Alex Carter</strong>, a Lead Systems Architect and Full Stack Engineer. I build clean,
+          high-performance backends, custom ERPNext/Frappe setups, and robust distributed systems.
+        </p>
+
+        <div class="hero-specialties-container" data-gsap="fade-up" data-gsap-delay="150">
+          <span class="specialty-label">Specializing in:</span>
+          <span id="rotating-specialty" class="gradient-accent">Python / Django</span>
+        </div>
+
+        <div class="hero-ctas" data-gsap="fade-up" data-gsap-delay="200">
+          <a href="#projects" class="btn btn-primary">
+            View Case Studies <i data-lucide="arrow-right"></i>
+          </a>
+          <a href="assets/resume.pdf" class="btn btn-secondary" download>
+            Download Resume <i data-lucide="download"></i>
+          </a>
+          <a href="#contact" class="btn btn-tertiary">Let's Connect</a>
+        </div>
+
+        <!-- Social Activity Badges -->
+        <div class="hero-socials" data-gsap="fade-up" data-gsap-delay="250">
+          <a href="https://github.com" target="_blank" class="social-badge-link">
+            <div class="github-activity-badge">
+              <i data-lucide="github"></i>
+              <span class="activity-text">GitHub Active</span>
+              <span class="activity-status-dot"></span>
+            </div>
+          </a>
+          <a href="https://linkedin.com" target="_blank" class="social-icon-btn" title="LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://x.com" target="_blank" class="social-icon-btn" title="Twitter/X">
+            <i data-lucide="twitter"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Animated Scroll Indicator -->
+      <a href="#about" class="scroll-indicator" aria-label="Scroll Down">
+        <span class="scroll-mouse">
+          <span class="scroll-wheel"></span>
+        </span>
+      </a>
+    </section>
+
+    <!-- 12. ABOUT SECTION -->
+    <section id="about" class="about-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">01.</span> About Me</h2>
+        <div class="about-grid">
+          <div class="about-avatar-container" data-gsap="fade-right">
+            <div class="avatar-frame">
+              <img src="assets/images/profile.jpg" alt="Alex Carter Profile" class="avatar-img">
+              <div class="avatar-overlay"></div>
+            </div>
+          </div>
+          <div class="about-info" data-gsap="fade-left">
+            <h3 class="about-heading">Engineering with Product Mindset</h3>
+            <p>
+              I am a software engineer with over 7 years of professional experience writing code, configuring cloud
+              networks, and optimizing relational databases. I believe that writing code is only 30% of the job; the
+              other 70% is understanding business requirements, architecting systems for growth, and building
+              user-centric interfaces.
+            </p>
+            <p>
+              My professional expertise lies in constructing custom integrations on top of the <strong>Frappe Framework
+                / ERPNext</strong>, building high-throughput REST APIs in <strong>Python (Django / FastAPI)</strong>,
+              and orchestrating containers in production environments using <strong>Kubernetes (EKS/GKE)</strong>.
+            </p>
+
+            <div class="about-details-grid">
+              <div class="about-detail-card">
+                <h4><i data-lucide="map-pin"></i> Location</h4>
+                <p>San Francisco, CA (GMT-7)</p>
+              </div>
+              <div class="about-detail-card">
+                <h4><i data-lucide="code-2"></i> Current Learning</h4>
+                <p>Rust concurrency primitives, WebGPU shaders</p>
+              </div>
+              <div class="about-detail-card">
+                <h4><i data-lucide="activity"></i> Availability</h4>
+                <p>Consulting & contract roles (20h/week)</p>
+              </div>
+              <div class="about-detail-card">
+                <h4><i data-lucide="coffee"></i> Fun Fact</h4>
+                <p>Can compile Linux kernels from scratch and roast coffee beans at 220°C</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 & 3 & 4. PROJECTS SECTION -->
+    <section id="projects" class="projects-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">02.</span> Projects & Case Studies</h2>
+
+        <!-- Category Filters -->
+        <div class="filters-container" data-gsap="fade-up">
+          <div class="category-filters">
+            <button class="filter-btn active" data-filter="all">All Projects</button>
+            <button class="filter-btn" data-filter="Web Applications">Web Apps</button>
+            <button class="filter-btn" data-filter="Backend Systems">Backend</button>
+            <button class="filter-btn" data-filter="ERPNext / Frappe">Frappe / ERPNext</button>
+            <button class="filter-btn" data-filter="DevOps">DevOps</button>
+          </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="projects-grid" id="projects-list" data-gsap="fade-up" data-gsap-delay="100">
+
+          <!-- Project 1: Nexis ERP -->
+          <article class="project-card" data-category="ERPNext / Frappe">
+            <div class="project-card-header">
+              <img src="assets/images/nexis_erp_thumbnail.png" alt="Nexis ERP Sync" class="project-thumbnail"
+                loading="lazy">
+              <span class="project-status-badge">Production</span>
+              <span class="project-stars-badge"><i data-lucide="star" style="width:12px;height:12px;"></i> 42</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">Nexis ERP Custom Integration</h3>
+              <p class="project-summary">High-throughput API sync engine for ERPNext that optimizes MariaDB query
+                execution and reduces sync time by 85% for large-scale retail systems.</p>
+              <div class="project-tech-tags">
+                <span class="tech-tag">Python</span>
+                <span class="tech-tag">Frappe</span>
+                <span class="tech-tag">Redis</span>
+                <span class="tech-tag">TypeScript</span>
+                <span class="tech-tag">MariaDB</span>
+              </div>
+              <div class="project-actions">
+                <a href="#" class="project-link-btn btn-case-study" data-project-id="nexis-erp">
+                  Engineering Case Study <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 2: AetherDB -->
+          <article class="project-card" data-category="Backend Systems">
+            <div class="project-card-header">
+              <img src="assets/images/aether_db_thumbnail.png" alt="AetherDB" class="project-thumbnail" loading="lazy">
+              <span class="project-status-badge">Active Development</span>
+              <span class="project-stars-badge"><i data-lucide="star" style="width:12px;height:12px;"></i> 284</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">AetherDB: Distributed Key-Value Store</h3>
+              <p class="project-summary">Lightweight, highly available distributed key-value store utilizing the Raft
+                consensus protocol for guaranteed state consistency across distributed clusters.</p>
+              <div class="project-tech-tags">
+                <span class="tech-tag">Go (Golang)</span>
+                <span class="tech-tag">gRPC</span>
+                <span class="tech-tag">Protobuf</span>
+                <span class="tech-tag">Kubernetes</span>
+                <span class="tech-tag">LSM-Tree</span>
+              </div>
+              <div class="project-actions">
+                <a href="#" class="project-link-btn btn-case-study" data-project-id="aether-db">
+                  Engineering Case Study <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 3: SynthAnalytics -->
+          <article class="project-card" data-category="Web Applications">
+            <div class="project-card-header">
+              <img src="assets/images/synthanalyze_thumbnail.png" alt="SynthAnalytics" class="project-thumbnail"
+                loading="lazy">
+              <span class="project-status-badge">Production</span>
+              <span class="project-stars-badge"><i data-lucide="star" style="width:12px;height:12px;"></i> 115</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">SynthAnalytics SaaS Dashboard</h3>
+              <p class="project-summary">Real-time analytics engine and dashboard visualizing user conversion funnels,
+                event stream latency, and live server health metrics via WebSockets.</p>
+              <div class="project-tech-tags">
+                <span class="tech-tag">React</span>
+                <span class="tech-tag">Next.js</span>
+                <span class="tech-tag">Node.js</span>
+                <span class="tech-tag">Socket.io</span>
+                <span class="tech-tag">TimescaleDB</span>
+              </div>
+              <div class="project-actions">
+                <a href="#" class="project-link-btn btn-case-study" data-project-id="synthanalyze">
+                  Engineering Case Study <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 4: OpsFlow -->
+          <article class="project-card" data-category="DevOps">
+            <div class="project-card-header">
+              <img src="assets/images/opsflow_thumbnail.png" alt="OpsFlow" class="project-thumbnail" loading="lazy">
+              <span class="project-status-badge">Maintenance</span>
+              <span class="project-stars-badge"><i data-lucide="star" style="width:12px;height:12px;"></i> 86</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">OpsFlow: Kubernetes Automation Platform</h3>
+              <p class="project-summary">An infrastructure-as-code automation dashboard orchestrating deployment
+                pipelines, secrets injection, and isolated staging environments.</p>
+              <div class="project-tech-tags">
+                <span class="tech-tag">Go (Golang)</span>
+                <span class="tech-tag">Docker</span>
+                <span class="tech-tag">Vault</span>
+                <span class="tech-tag">AWS EKS</span>
+                <span class="tech-tag">Terraform</span>
+              </div>
+              <div class="project-actions">
+                <a href="#" class="project-link-btn btn-case-study" data-project-id="opsflow">
+                  Engineering Case Study <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. EXPERIENCE SECTION -->
+    <section id="experience" class="experience-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">03.</span> Work History</h2>
+
+        <!-- Interactive Vertical Timeline -->
+        <div class="timeline" data-gsap="fade-up">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">Jan 2024 - Present</div>
+            <div class="timeline-content">
+              <h3 class="timeline-title">Lead Systems Architect <span class="timeline-company">@ Apex Tech
+                  Systems</span></h3>
+              <p class="timeline-summary">Architecting distributed ERP integrations and auto-scaling API pipelines to
+                handle peak seasonal traffic spikes.</p>
+              <ul class="timeline-achievements">
+                <li>Designed custom Frappe stock-reconciliation pipeline reducing locking conflicts by 92%.</li>
+                <li>Orchestrated migration from VM-based workloads to Kubernetes, decreasing cloud compute costs by 35%.
+                </li>
+                <li>Mentored a team of 6 engineers on database optimization, clean code practices, and unit test
+                  automation.</li>
+              </ul>
+              <div class="timeline-tags">
+                <span class="tag">Frappe</span><span class="tag">MariaDB</span><span class="tag">Redis</span><span
+                  class="tag">AWS EKS</span><span class="tag">Docker</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">Jun 2021 - Dec 2023</div>
+            <div class="timeline-content">
+              <h3 class="timeline-title">Senior Software Engineer <span class="timeline-company">@ CloudScale
+                  Labs</span></h3>
+              <p class="timeline-summary">Owned the API services group responsible for processing high-velocity event
+                tracking data.</p>
+              <ul class="timeline-achievements">
+                <li>Built a telemetry ingestion service in Go that handles 50,000+ API requests per second with less
+                  than 2ms response latency.</li>
+                <li>Optimized Django Rest Framework serializations, reducing query count (N+1 queries) by 60%.</li>
+                <li>Integrated continuous deployment pipelines using GitHub Actions and Helm charts for zero-downtime
+                  updates.</li>
+              </ul>
+              <div class="timeline-tags">
+                <span class="tag">Go</span><span class="tag">Python</span><span class="tag">Django</span><span
+                  class="tag">PostgreSQL</span><span class="tag">Grafana</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">Mar 2019 - May 2021</div>
+            <div class="timeline-content">
+              <h3 class="timeline-title">Software Developer <span class="timeline-company">@ DevCore Integration
+                  Group</span></h3>
+              <p class="timeline-summary">Developed full-stack web products and integrated external third-party payment
+                and supply APIs.</p>
+              <ul class="timeline-achievements">
+                <li>Designed dynamic frontend dashboards in React, reducing load time from 4.2 seconds to 1.1 seconds.
+                </li>
+                <li>Wrote complex Celery task schedulers for bulk email notification delivery and report generation.
+                </li>
+                <li>Maintained and extended legacy MariaDB database tables, writing custom SQL migration patches.</li>
+              </ul>
+              <div class="timeline-tags">
+                <span class="tag">React</span><span class="tag">Node.js</span><span class="tag">PostgreSQL</span><span
+                  class="tag">Celery</span><span class="tag">Redis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. SKILLS SECTION -->
+    <section id="skills" class="skills-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">04.</span> Skill Matrix</h2>
+
+        <div class="skills-grid" data-gsap="fade-up">
+          <!-- Programming Languages -->
+          <div class="skills-card">
+            <h3 class="skills-group-title"><i data-lucide="code"></i> Languages</h3>
+            <div class="skill-list">
+              <div class="skill-item">
+                <span class="skill-name">Python</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="95%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">JavaScript / TypeScript</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="90%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">Go (Golang)</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="80%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">SQL (MariaDB/Postgres)</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="92%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Frameworks -->
+          <div class="skills-card">
+            <h3 class="skills-group-title"><i data-lucide="layers"></i> Frameworks</h3>
+            <div class="skill-list">
+              <div class="skill-item">
+                <span class="skill-name">Frappe / ERPNext</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="95%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">Django / FastAPI</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="90%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">React / Next.js</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="85%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">Node.js (Express)</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="80%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DevOps & Cloud -->
+          <div class="skills-card">
+            <h3 class="skills-group-title"><i data-lucide="cloud"></i> DevOps & Cloud</h3>
+            <div class="skill-list">
+              <div class="skill-item">
+                <span class="skill-name">Docker / Kubernetes</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="88%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">AWS (ECS/EKS/RDS/S3)</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="85%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">Terraform / IaC</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="78%"></div>
+                </div>
+              </div>
+              <div class="skill-item">
+                <span class="skill-name">GitHub Actions CI/CD</span>
+                <div class="skill-bar-container">
+                  <div class="skill-bar" data-width="90%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. OPEN SOURCE SECTION -->
+    <section id="open-source" class="open-source-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">05.</span> Open Source Activities</h2>
+
+        <div class="os-grid">
+          <!-- Github Stats -->
+          <div class="os-stats-card" data-gsap="fade-right">
+            <h3>GitHub Performance Index</h3>
+            <div class="os-metrics-container">
+              <div class="os-metric">
+                <span class="os-metric-num" id="os-stars">482</span>
+                <span class="os-metric-label">Stars Earned</span>
+              </div>
+              <div class="os-metric">
+                <span class="os-metric-num" id="os-contribs">820+</span>
+                <span class="os-metric-label">Contributions (YTD)</span>
+              </div>
+              <div class="os-metric">
+                <span class="os-metric-num" id="os-repos">34</span>
+                <span class="os-metric-label">Public Repos</span>
+              </div>
+            </div>
+
+            <!-- Mock GitHub Contribution Graph -->
+            <div class="github-calendar">
+              <span class="calendar-title">Activity Calendar</span>
+              <div class="calendar-grid" id="github-calendar-grid">
+                <!-- Dynamically generated days -->
+              </div>
+              <div class="calendar-legend">
+                <span>Less</span>
+                <span class="legend-box level-0"></span>
+                <span class="legend-box level-1"></span>
+                <span class="legend-box level-2"></span>
+                <span class="legend-box level-3"></span>
+                <span class="legend-box level-4"></span>
+                <span>More</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlighted Packages/Repositories -->
+          <div class="os-repos-list" data-gsap="fade-left">
+            <div class="os-repo-item">
+              <div class="os-repo-header">
+                <h4>frappe-fast-sync</h4>
+                <span class="os-stars-badge"><i data-lucide="star"></i> 142</span>
+              </div>
+              <p>Whitelisted bulk sync controller plugin bypassing standard Frappe insert hooks for 15x write
+                optimization.</p>
+              <div class="os-repo-tags">
+                <span>Python</span><span>Frappe</span>
+              </div>
+            </div>
+
+            <div class="os-repo-item">
+              <div class="os-repo-header">
+                <h4>raft-lite-go</h4>
+                <span class="os-stars-badge"><i data-lucide="star"></i> 284</span>
+              </div>
+              <p>Zero-dependency, clean educational implementation of the Raft distributed consensus protocol in Go.</p>
+              <div class="os-repo-tags">
+                <span>Go</span><span>Protobuf</span>
+              </div>
+            </div>
+
+            <div class="os-repo-item">
+              <div class="os-repo-header">
+                <h4>django-cache-bust</h4>
+                <span class="os-stars-badge"><i data-lucide="star"></i> 56</span>
+              </div>
+              <p>Simple middleware that auto-invalidates Redis cache keys based on database commit hooks.</p>
+              <div class="os-repo-tags">
+                <span>Python</span><span>Django</span><span>Redis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. BLOG / TECH ARTICLES SECTION -->
+    <section id="blog" class="blog-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">06.</span> Technical Publications</h2>
+
+        <div class="blog-grid" data-gsap="fade-up">
+          <div class="blog-card" data-article-id="optimizing-frappe-queries">
+            <span class="blog-date">March 12, 2026</span>
+            <h3 class="blog-card-title">Optimizing database queries in Frappe Framework and ERPNext</h3>
+            <p class="blog-card-excerpt">A deep dive into MariaDB indexes, batch query optimization, and bypassing the
+              Frappe ORM safely to scale record writes by 85%.</p>
+            <span class="blog-read-more">Read Article <i data-lucide="arrow-right"></i></span>
+          </div>
+
+          <div class="blog-card" data-article-id="scaling-django-apis">
+            <span class="blog-date">February 28, 2026</span>
+            <h3 class="blog-card-title">Scaling Django APIs to 50k Requests Per Minute</h3>
+            <p class="blog-card-excerpt">Explore concrete architecture strategies: select_related optimization,
+              Redis-backed key caches, and offloading workload payloads to Celery.</p>
+            <span class="blog-read-more">Read Article <i data-lucide="arrow-right"></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 & 11. CERTIFICATIONS & TESTIMONIALS SECTION -->
+    <section id="credentials" class="credentials-section section-padding">
+      <div class="section-container">
+        <div class="credentials-grid">
+
+          <!-- Testimonials -->
+          <div class="testimonials-container" data-gsap="fade-right">
+            <h2 class="section-title"><span class="section-num">07.</span> Testimonials</h2>
+            <div class="testimonial-slider">
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  "Alex helped us completely re-architect our ERPNext database syncing. The stock timeouts we'd been
+                  suffering from for months disappeared within a week of deploying his query sync engine. Exceptional
+                  software engineer."
+                </p>
+                <div class="testimonial-author">
+                  <span class="author-name">Marcus Vance</span>
+                  <span class="author-title">CTO, Apex Retail Group</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Certifications & Awards -->
+          <div class="certs-container" data-gsap="fade-left">
+            <h2 class="section-title"><span class="section-num">08.</span> Certifications</h2>
+            <ul class="certs-list">
+              <li>
+                <div class="cert-header">
+                  <span class="cert-name">AWS Certified Solutions Architect – Professional</span>
+                  <span class="cert-date">2025</span>
+                </div>
+              </li>
+              <li>
+                <div class="cert-header">
+                  <span class="cert-name">Certified Frappe Developer (Advanced)</span>
+                  <span class="cert-date">2024</span>
+                </div>
+              </li>
+              <li>
+                <div class="cert-header">
+                  <span class="cert-name">Certified Kubernetes Administrator (CKA)</span>
+                  <span class="cert-date">2023</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. CONTACT SECTION -->
+    <section id="contact" class="contact-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">09.</span> Let's Build Something</h2>
+
+        <div class="contact-grid">
+          <!-- Availability Info -->
+          <div class="contact-info" data-gsap="fade-right">
+            <h3>Start a Conversation</h3>
+            <p>
+              I am open to architecting backend services, auditing database loads, or developing custom Frappe/ERPNext
+              applications. Drop a message and let's discuss details.
+            </p>
+            <ul class="contact-methods">
+              <li>
+                <span class="method-label">Direct Email</span>
+                <a href="mailto:alex@carter.dev" class="method-val">alex@carter.dev</a>
+              </li>
+              <li>
+                <span class="method-label">Current Location</span>
+                <span class="method-val">San Francisco, CA (US-Pacific)</span>
+              </li>
+              <li>
+                <span class="method-label">Preferred Channels</span>
+                <span class="method-val">Email, Slack, Discord</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="contact-form-container" data-gsap="fade-left">
+            <form id="contact-form" class="contact-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="form-name">Full Name</label>
+                  <input type="text" id="form-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                  <label for="form-email">Email Address</label>
+                  <input type="email" id="form-email" required placeholder="john@example.com">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="form-subject">Subject</label>
+                <input type="text" id="form-subject" required placeholder="Project Architecture Consultation">
+              </div>
+              <div class="form-group">
+                <label for="form-message">Message</label>
+                <textarea id="form-message" rows="5" required
+                  placeholder="Tell me about your tech stack, timeline, and goals..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary form-submit-btn">
+                Send Message <i data-lucide="send"></i>
+              </button>
+              <div id="form-feedback" class="form-feedback"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Terminal Drawer -->
+  <div id="terminal-drawer">
+    <div class="terminal-header">
+      <div class="terminal-dots">
+        <span class="dot close"></span>
+        <span class="dot minimize"></span>
+        <span class="dot maximize"></span>
+      </div>
+      <div class="terminal-title">bash - developer@alex-carter-portfolio:~</div>
+      <button id="terminal-drawer-close" aria-label="Close Terminal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="terminal-body" id="terminal-output">
+      <div class="terminal-welcome">
+        Welcome to Alex's interactive CLI portfolio v2.0.0.<br>
+        Type <span class="term-highlight">help</span> to list available commands.<br><br>
+      </div>
+      <div class="terminal-command-line">
+        <span class="terminal-prompt">guest@alex-carter:~$</span>
+        <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+  </div>
+
+  <!-- Command Palette Modal -->
+  <div id="command-palette">
+    <div class="palette-box">
+      <div class="palette-search-container">
+        <i data-lucide="search" class="palette-search-icon"></i>
+        <input type="text" id="palette-search-input" placeholder="Type a command or search portfolio..."
+          autocomplete="off">
+        <span class="palette-esc-tip">ESC</span>
+      </div>
+      <div class="palette-results" id="palette-results-list">
+        <!-- Dynamically filled with search results -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Project Case Study Overlay -->
+  <div id="case-study-overlay" class="overlay">
+    <div class="overlay-container">
+      <header class="overlay-header">
+        <button class="overlay-back-btn" id="case-study-close">
+          <i data-lucide="arrow-left"></i> Back to Portfolio
+        </button>
+        <span class="overlay-header-title">Case Study</span>
+      </header>
+      <div class="overlay-content" id="case-study-content">
+        <!-- Case Study elements will load here dynamically in script.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; 2026 Alex Carter. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="https://github.com" target="_blank">GitHub</a>
+        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+        <a href="https://x.com" target="_blank">Twitter/X</a>
+        <a href="rss.xml">RSS Feed</a>
+        <a href="sitemap.xml">Sitemap</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Scripts -->
+  <script src="script.js"></script>
+  <script src="three-bg.js"></script>
+  <script src="terminal.js"></script>
+</body>
+
+</html>
