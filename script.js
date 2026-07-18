@@ -1046,14 +1046,18 @@ function initCommandPalette() {
   if (!palette || !searchInput || !resultsContainer) return;
 
   const items = [
-    { name: 'Go to About section', action: 'scroll:#about', shortcut: 'G A', icon: 'user' },
-    { name: 'Go to Projects list', action: 'scroll:#projects', shortcut: 'G P', icon: 'folder' },
-    { name: 'Go to Experience timeline', action: 'scroll:#experience', shortcut: 'G E', icon: 'briefcase' },
-    { name: 'Go to Technical Articles', action: 'scroll:#blog', shortcut: 'G B', icon: 'book' },
-    { name: 'Go to Contact Form', action: 'scroll:#contact', shortcut: 'G C', icon: 'mail' },
-    { name: 'Switch Theme (Dark/Light)', action: 'theme', shortcut: 'T', icon: 'sun' },
-    { name: 'Launch CLI Terminal Drawer', action: 'terminal', shortcut: '`', icon: 'terminal' },
-    { name: 'Download PDF Resume', action: 'download:assets/resume.pdf', shortcut: 'R', icon: 'download' }
+    { name: 'View Projects list', action: 'scroll:#projects', shortcut: 'G P', icon: 'folder' },
+    { name: 'View Technical Skills', action: 'scroll:#skills', shortcut: 'G S', icon: 'code-2' },
+    { name: 'View Work Experience', action: 'scroll:#experience', shortcut: 'G E', icon: 'briefcase' },
+    { name: 'Open Interactive CLI Terminal', action: 'terminal', shortcut: '`', icon: 'terminal' },
+    { name: 'Launch Bug Hunt Debugger', action: 'playground:bug-hunt', shortcut: 'P B', icon: 'bug' },
+    { name: 'Open API Playground', action: 'playground:api-playground', shortcut: 'P A', icon: 'globe' },
+    { name: 'Open Mini ERP Workspace', action: 'playground:erp-sandbox', shortcut: 'P E', icon: 'layout' },
+    { name: 'Download PDF Resume', action: 'download:assets/resume.pdf', shortcut: 'R', icon: 'download' },
+    { name: 'Visit Developer GitHub', action: 'github', shortcut: 'G H', icon: 'github' },
+    { name: 'Contact Developer', action: 'scroll:#contact', shortcut: 'G C', icon: 'mail' },
+    { name: 'Toggle UI Theme', action: 'theme', shortcut: 'T', icon: 'sun' },
+    { name: 'Toggle Developer Mode', action: 'devmode', shortcut: 'D M', icon: 'settings' }
   ];
 
   let selectedIndex = 0;
@@ -1062,6 +1066,9 @@ function initCommandPalette() {
   function togglePalette() {
     const isOpen = palette.classList.toggle('open');
     if (isOpen) {
+      if (window.unlockAchievement) {
+        window.unlockAchievement('keyboard-ninja');
+      }
       searchInput.value = '';
       selectedIndex = 0;
       renderItems(items);
@@ -1107,6 +1114,17 @@ function initCommandPalette() {
       link.href = path;
       link.download = 'Alex_Carter_Resume.pdf';
       link.click();
+    } else if (action.startsWith('playground:')) {
+      const tabName = action.split(':')[1];
+      const el = document.querySelector('#playground');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      const tabBtn = document.querySelector(`.playground-tab[data-tab="${tabName}"]`);
+      if (tabBtn) tabBtn.click();
+    } else if (action === 'github') {
+      window.open('https://github.com', '_blank');
+    } else if (action === 'devmode') {
+      const devModeBtn = document.getElementById('devmode-toggle-btn');
+      if (devModeBtn) devModeBtn.click();
     }
   }
 

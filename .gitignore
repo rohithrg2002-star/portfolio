@@ -1,5 +1,6 @@
 # Ignore project progress logs
 chat_progress.md
+project_progress.md
 
 # System & OS Files
 .DS_Store

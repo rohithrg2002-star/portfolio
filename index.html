@@ -76,9 +76,13 @@
         <li><a href="#skills" class="nav-item">Skills</a></li>
         <li><a href="#open-source" class="nav-item">OS</a></li>
         <li><a href="#blog" class="nav-item">Articles</a></li>
+        <li><a href="#playground" class="nav-item">Playground</a></li>
         <li><a href="#contact" class="nav-item">Contact</a></li>
       </ul>
       <div class="nav-actions">
+        <button id="devmode-toggle-btn" class="nav-btn" title="Toggle Developer Mode">
+          <i data-lucide="code-2"></i>
+        </button>
         <button id="terminal-toggle" class="nav-btn" title="Open Desktop Terminal (`)">
           <i data-lucide="terminal"></i>
         </button>
@@ -107,6 +111,7 @@
         <li><a href="#skills" class="mobile-item">Skills</a></li>
         <li><a href="#open-source" class="mobile-item">OS</a></li>
         <li><a href="#blog" class="mobile-item">Articles</a></li>
+        <li><a href="#playground" class="mobile-item">Playground</a></li>
         <li><a href="#contact" class="mobile-item">Contact</a></li>
       </ul>
     </div>
@@ -682,10 +687,358 @@
       </div>
     </section>
 
+    <!-- 15. DEVELOPER PLAYGROUND SECTION -->
+    <section id="playground" class="playground-section section-padding">
+      <div class="section-container">
+        <h2 class="section-title"><span class="section-num">09.</span> Developer Playground</h2>
+        <p class="playground-subtitle" style="color:var(--text-secondary); margin-bottom: 40px; max-width: 800px; line-height: 1.6;">
+          An interactive engineering playground. Toggle Developer Mode in the navbar actions, solve code bugs, test my mock REST API endpoints, or explore my mini ERP sandbox.
+        </p>
+
+        <div class="playground-hub">
+          <!-- Sidebar: Tabs Menu & Achievements Panel -->
+          <div class="playground-sidebar">
+            <div class="playground-tabs">
+              <button class="playground-tab active" data-tab="bug-hunt">
+                <i data-lucide="bug"></i> <span>Bug Hunt</span>
+              </button>
+              <button class="playground-tab" data-tab="api-playground">
+                <i data-lucide="globe"></i> <span>API Playground</span>
+              </button>
+              <button class="playground-tab" data-tab="erp-sandbox">
+                <i data-lucide="layout"></i> <span>Mini ERP Sandbox</span>
+              </button>
+              <button class="playground-tab" data-tab="git-timeline">
+                <i data-lucide="git-branch"></i> <span>Git Career Log</span>
+              </button>
+              <button class="playground-tab" data-tab="how-i-debug">
+                <i data-lucide="activity"></i> <span>How I Debug</span>
+              </button>
+              <button class="playground-tab" data-tab="pipeline-simulator">
+                <i data-lucide="cpu"></i> <span>Build Pipeline</span>
+              </button>
+            </div>
+
+            <!-- Achievements Panel -->
+            <div class="achievements-panel">
+              <div class="achievements-header">
+                <h4><i data-lucide="trophy"></i> Achievements</h4>
+                <span id="achievement-ratio" class="achievement-ratio">0/7</span>
+              </div>
+              <div class="achievements-list" id="achievements-list">
+                <!-- Dynamically loaded in playground.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Interactive View Area -->
+          <div class="playground-content-panel">
+            
+            <!-- 1. BUG HUNT TAB -->
+            <div class="playground-panel active" id="panel-bug-hunt">
+              <div class="panel-header">
+                <h3>🧩 Interactive Bug Hunt: <span style="color:var(--accent-color);">"Can You Fix This Bug?"</span></h3>
+                <div class="bughunt-stats">
+                  <span>Solved: <strong id="stat-solved">0</strong></span>
+                  <span>Attempts: <strong id="stat-attempts">0</strong></span>
+                  <span>Fastest: <strong id="stat-fastest">0s</strong></span>
+                </div>
+              </div>
+              <p class="panel-intro">
+                Review the broken code block. Select the line with the bug, choose the correct solution below, and run the test suite to verify the fix.
+              </p>
+              
+              <div class="bughunt-difficulty">
+                <button class="diff-btn active" data-diff="easy">Easy (JS)</button>
+                <button class="diff-btn" data-diff="medium">Medium (Python)</button>
+                <button class="diff-btn" data-diff="hard">Hard (JS Async)</button>
+              </div>
+
+              <div class="bughunt-layout">
+                <div class="bughunt-editor-container">
+                  <div class="editor-header">
+                    <span class="editor-title">code_editor.js</span>
+                    <span class="editor-dot"></span>
+                  </div>
+                  <div class="bughunt-code-lines" id="bughunt-code-lines">
+                    <!-- Lines generated dynamically -->
+                  </div>
+                </div>
+
+                <div class="bughunt-actions">
+                  <h4>Select the Solution:</h4>
+                  <ul class="options-list" id="bughunt-options-list">
+                    <!-- Options generated dynamically -->
+                  </ul>
+                  <button id="bughunt-run-btn" class="btn btn-primary" style="margin-top: 15px;">
+                    Run Test Suite <i data-lucide="play" style="width:14px;height:14px;margin-left:6px;display:inline-block;vertical-align:middle;"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="bughunt-console">
+                <div class="console-header">Console Output</div>
+                <div class="bughunt-console-output" id="bughunt-console-output">
+                  <span class="console-placeholder">Waiting for execution... Select bug line and fix option.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. API PLAYGROUND TAB -->
+            <div class="playground-panel" id="panel-api-playground">
+              <div class="panel-header">
+                <h3>🌐 REST API Playground: <span style="color:var(--accent-color);">Mock REST Client</span></h3>
+              </div>
+              <p class="panel-intro">
+                Interact with the portfolio endpoints. Select an endpoint from the dropdown, customize request attributes, and click "Send" to inspect the JSON response structure.
+              </p>
+
+              <div class="api-client">
+                <div class="api-request-bar">
+                  <span class="api-method get" id="api-method-tag">GET</span>
+                  <select id="api-endpoint-select" class="api-endpoint-select">
+                    <option value="GET /api/developer">GET /api/developer</option>
+                    <option value="GET /api/skills">GET /api/skills</option>
+                    <option value="GET /api/projects">GET /api/projects</option>
+                    <option value="GET /api/experience">GET /api/experience</option>
+                    <option value="GET /api/currently-learning">GET /api/currently-learning</option>
+                    <option value="POST /api/contact">POST /api/contact</option>
+                  </select>
+                  <button id="api-send-btn" class="btn btn-primary">Send Request</button>
+                </div>
+
+                <!-- POST Request Body block (initially hidden) -->
+                <div class="api-request-body" id="api-req-body-container" style="display:none; margin-top: 15px;">
+                  <h4>Request JSON Body (Edit details):</h4>
+                  <textarea id="api-req-body-json" rows="4" style="width:100%; font-family:var(--font-mono); background:rgba(0,0,0,0.3); border:1px solid var(--border-color); color:#fff; padding:10px; border-radius:8px; outline:none;">{
+  "name": "Visitor",
+  "email": "visitor@example.com",
+  "message": "Hi Alex, let's connect!"
+}</textarea>
+                </div>
+
+                <div class="api-response-container" style="margin-top: 25px;">
+                  <div class="response-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                    <h4 style="margin:0;">Response Headers & Body</h4>
+                    <div class="response-metrics" style="font-family:var(--font-mono); font-size:12px; display:flex; gap:16px;">
+                      <span>Status: <strong id="api-res-status" style="color:var(--text-primary);">---</strong></span>
+                      <span>Time: <strong id="api-res-time" style="color:var(--text-primary);">---</strong></span>
+                      <span>Size: <strong id="api-res-size" style="color:var(--text-primary);">---</strong></span>
+                    </div>
+                  </div>
+                  <div class="api-response-body" style="background:#090d16; border:1px solid var(--border-color); border-radius:10px; padding:20px; overflow-x:auto; min-height:180px;">
+                    <pre class="json-code" id="api-json-response" style="margin:0; font-family:var(--font-mono); font-size:13px; color:#a5b4fc; white-space:pre;"><span class="console-placeholder" style="color:var(--text-muted);">Click "Send Request" to trigger API client.</span></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. ERP SANDBOX TAB -->
+            <div class="playground-panel" id="panel-erp-sandbox">
+              <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <h3 style="margin:0;">🏢 Mini ERP Workspace: <span style="color:var(--accent-color);">Frappe Desk Mock</span></h3>
+                <span class="erp-badge" style="font-size:10px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); padding:4px 8px; border-radius:4px; font-family:var(--font-mono); color:var(--accent-color);">Mini ERP — Built for Portfolio Exploration</span>
+              </div>
+              <p class="panel-intro">
+                Explore a lightweight replica of the Frappe workspace used to manage developer activities, task backlogs, and customer workflows.
+              </p>
+
+              <div class="erp-workspace">
+                <!-- Left Sidebar Navigation -->
+                <div class="erp-sidebar">
+                  <div class="erp-sidebar-title">Modules</div>
+                  <ul class="erp-sidebar-menu">
+                    <li class="erp-nav-item active" data-module="tasks"><i data-lucide="check-square" style="width:14px;height:14px;"></i> Tasks</li>
+                    <li class="erp-nav-item" data-module="issues"><i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Issues</li>
+                    <li class="erp-nav-item" data-module="customers"><i data-lucide="users" style="width:14px;height:14px;"></i> Customers</li>
+                    <li class="erp-nav-item" data-module="reports"><i data-lucide="bar-chart-2" style="width:14px;height:14px;"></i> Reports</li>
+                  </ul>
+                </div>
+
+                <!-- Workspace Grid -->
+                <div class="erp-main">
+                  <div class="erp-toolbar">
+                    <button class="btn btn-secondary btn-sm" id="erp-create-btn" style="padding:6px 12px; font-size:12px; display:flex; align-items:center; gap:4px;">
+                      <i data-lucide="plus" style="width:12px;height:12px;"></i> Create Doc
+                    </button>
+                    <select id="erp-filter-select" class="erp-filter-select">
+                      <option value="all">Filter: All Records</option>
+                      <option value="Open">Filter: Open</option>
+                      <option value="In Progress">Filter: In Progress</option>
+                      <option value="Closed">Filter: Closed</option>
+                    </select>
+                  </div>
+
+                  <div class="erp-table-container">
+                    <table class="erp-table">
+                      <thead>
+                        <tr id="erp-table-headers">
+                          <!-- Filled in JS -->
+                        </tr>
+                      </thead>
+                      <tbody id="erp-table-body">
+                        <!-- Filled in JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Create Task Modal overlay (Inner) -->
+              <div id="erp-task-modal" class="erp-modal" style="display:none;">
+                <div class="erp-modal-content">
+                  <div class="erp-modal-header">
+                    <h4>New DocType: Task Form</h4>
+                    <button id="erp-modal-close" class="erp-modal-close-btn">&times;</button>
+                  </div>
+                  <form id="erp-task-form">
+                    <div class="form-group" style="margin-bottom:12px;">
+                      <label for="erp-task-name">Task Name / Description</label>
+                      <input type="text" id="erp-task-name" required placeholder="e.g. Write integration test mocks" style="width:100%; padding:10px; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:6px; color:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px;">
+                      <label for="erp-task-project">Project Reference</label>
+                      <input type="text" id="erp-task-project" required placeholder="e.g. Nexis ERP Sync" style="width:100%; padding:10px; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:6px; color:#fff;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:16px;">
+                      <label for="erp-task-priority">Priority Level</label>
+                      <select id="erp-task-priority" style="width:100%; padding:10px; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:6px; color:#fff; outline:none;">
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top:12px; width:100%; justify-content:center;">Submit Doc</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. GIT TIMELINE TAB -->
+            <div class="playground-panel" id="panel-git-timeline">
+              <div class="panel-header">
+                <h3>🌿 Git Commit Timeline: <span style="color:var(--accent-color);">Career Log</span></h3>
+              </div>
+              <p class="panel-intro">
+                Trace my progression through git commit histories. Each commit represents a milestone in my engineering, architecture, and technology capabilities. Click a commit to review the diff details.
+              </p>
+
+              <div class="git-timeline-layout">
+                <div class="git-commits-list" id="git-commits-list">
+                  <!-- Generated dynamically in playground.js -->
+                </div>
+                <div class="git-commit-detail" id="git-commit-detail">
+                  <!-- Selected commit loaded here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. HOW I DEBUG TAB -->
+            <div class="playground-panel" id="panel-how-i-debug">
+              <div class="panel-header">
+                <h3>🔎 Debugging Workflow Pipeline: <span style="color:var(--accent-color);">Incident Story</span></h3>
+              </div>
+              <p class="panel-intro">
+                Click through each stage of my structured debugging pipeline to view how I approach reproducing, isolating, and resolving production crashes.
+              </p>
+
+              <div class="debug-workflow-container">
+                <div class="debug-pipeline-grid">
+                  <div class="debug-pipeline-stage active" data-stage="stage-bug">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Bug Report</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-repro">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Reproduce</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-logs">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Inspect Logs</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-trace">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Trace Code</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-db">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Check DB</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-cause">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Root Cause</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-fix">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Implement Fix</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-test">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Write Tests</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-checks">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Lint Checks</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-deploy">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Deploy CI</span>
+                  </div>
+                  <div class="debug-pipeline-stage" data-stage="stage-verify">
+                    <span class="stage-dot-indicator"></span>
+                    <span class="stage-lbl">Verify</span>
+                  </div>
+                </div>
+
+                <div class="debug-stage-details" id="debug-stage-details">
+                  <h4 id="debug-details-title" style="margin-top:0; color:var(--text-primary);">Incident response detail</h4>
+                  <p id="debug-details-desc" style="color:var(--text-secondary); line-height:1.6; min-height:60px;">Click on any pipeline milestone stage at the top to explore tools.</p>
+                  <div class="debug-details-tools-header" style="font-weight:600; font-size:12px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">Primary Tools & Techniques:</div>
+                  <div class="debug-details-tools" id="debug-details-tools" style="display:flex; flex-wrap:wrap; gap:8px;">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. PIPELINE SIMULATOR TAB -->
+            <div class="playground-panel" id="panel-pipeline-simulator">
+              <div class="panel-header">
+                <h3>⚙ CI/CD Build Pipeline: <span style="color:var(--accent-color);">Deployment Simulator</span></h3>
+              </div>
+              <p class="panel-intro">
+                Trigger a mock container deployment for this portfolio. Run checks, execute specs, and review logs in real-time. (Beware: builds fail occasionally!).
+              </p>
+
+              <div class="pipeline-simulator">
+                <div class="pipeline-trigger-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                  <button id="pipeline-deploy-btn" class="btn btn-primary">Deploy Portfolio</button>
+                  <div class="pipeline-status idle" id="pipeline-status-text">Pipeline Idle</div>
+                </div>
+
+                <div class="pipeline-progress-container">
+                  <div class="pipeline-progress-bar" id="pipeline-progress-bar" style="width: 0%;"></div>
+                </div>
+
+                <div class="pipeline-console">
+                  <div class="console-header">CI Run Terminal Logs</div>
+                  <div class="pipeline-console-logs" id="pipeline-console-logs">
+                    <span class="console-placeholder">Click "Deploy Portfolio" button to initiate build runners.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- 13. CONTACT SECTION -->
     <section id="contact" class="contact-section section-padding">
       <div class="section-container">
-        <h2 class="section-title"><span class="section-num">09.</span> Let's Build Something</h2>
+        <h2 class="section-title"><span class="section-num">10.</span> Let's Build Something</h2>
 
         <div class="contact-grid">
           <!-- Availability Info -->
@@ -816,6 +1169,7 @@
   <script src="script.js"></script>
   <script src="three-bg.js"></script>
   <script src="terminal.js"></script>
+  <script src="playground.js"></script>
 </body>
 
 </html>
