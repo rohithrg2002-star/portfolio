@@ -1,384 +1,503 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Portfolio Content Manager</title>
-  
+  <title>Admin Dashboard | Portfolio Content &amp; Feature Manager</title>
+
   <!-- Typography & CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="index.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="admin.css">
 
-  <!-- Lucide Icons & Marked (Markdown Parser) -->
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
+
 <body>
 
   <!-- Passcode Access Gate Overlay -->
   <div id="login-overlay">
     <div class="login-box">
       <div class="login-header">
-        <span class="logo-bracket">&lt;</span>
-        <span class="logo-text">System Access Control</span>
-        <span class="logo-bracket">/&gt;</span>
+        <i data-lucide="shield-check" style="color: var(--accent); width: 28px; height: 28px;"></i>
+        <span>Portfolio Admin Access</span>
       </div>
-      <p class="login-prompt">Authenticate to access content management controls.</p>
+      <p class="login-prompt">Authenticate to manage portfolio content, features, and visibility switches.</p>
       <form id="login-form">
-        <input type="password" id="passcode-input" placeholder="Enter System Passcode" autocomplete="current-password" required>
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;">
-          Authenticate <i data-lucide="shield-check"></i>
+        <input type="password" id="passcode-input" placeholder="Enter System Passcode" autocomplete="current-password" required autofocus>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-4);">
+          <span>Authenticate</span>
+          <i data-lucide="arrow-right"></i>
         </button>
         <p id="login-error" class="login-error-msg">Incorrect Passcode. Access Denied.</p>
       </form>
-      <p class="login-hint">Hint: Default passcode is <code>admin123</code></p>
+      <p class="login-hint">Default passcode: <code>admin123</code></p>
     </div>
   </div>
 
   <!-- Admin Panel Layout -->
   <div id="admin-panel" style="display: none;">
+
     <!-- Topbar -->
     <header class="admin-topbar">
       <div class="topbar-left">
-        <a href="index.html" class="nav-logo">
-          <span class="logo-bracket">&lt;</span>
-          <span class="logo-text">Alex.C</span>
-          <span class="logo-bracket">/&gt;</span>
+        <a href="index.html" class="site-logo" title="Back to Portfolio Site">
+          <span>Alex Carter</span>
+          <span class="logo-tag">Admin</span>
         </a>
-        <span class="topbar-divider">|</span>
-        <span class="topbar-title"><i data-lucide="sliders"></i> Core Content Manager</span>
+        <span class="topbar-badge">
+          <span class="status-indicator"></span>
+          Live Sync Active
+        </span>
       </div>
+
       <div class="topbar-actions">
-        <button id="btn-export" class="btn btn-primary" title="Export updated script.js file">
-          <i data-lucide="download-cloud"></i> Publish &amp; Download script.js
+        <a href="index.html" target="_blank" class="btn btn-secondary btn-sm" id="btn-preview" title="View live site in a new tab">
+          <i data-lucide="external-link"></i>
+          <span>Preview Site</span>
+        </a>
+        <button id="btn-save-all" class="btn btn-primary btn-sm">
+          <i data-lucide="save"></i>
+          <span>Save Changes</span>
         </button>
-        <button id="btn-logout" class="btn btn-secondary">
-          <i data-lucide="log-out"></i> Log Out
+        <button id="btn-logout" class="btn btn-ghost btn-sm" title="Log out of Admin Dashboard">
+          <i data-lucide="log-out"></i>
         </button>
       </div>
     </header>
 
-    <div class="admin-main">
+    <div class="admin-main-wrap">
+
       <!-- Sidebar Navigation -->
       <aside class="admin-sidebar">
-        <ul class="sidebar-links">
-          <li class="sidebar-item active" data-tab="hero-about"><i data-lucide="user"></i> Hero &amp; About</li>
-          <li class="sidebar-item" data-tab="experience"><i data-lucide="briefcase"></i> Experience Timeline</li>
-          <li class="sidebar-item" data-tab="skills"><i data-lucide="sliders"></i> Skill Matrix</li>
-          <li class="sidebar-item" data-tab="projects"><i data-lucide="folder-kanban"></i> Projects Grid</li>
-          <li class="sidebar-item" data-tab="blog"><i data-lucide="book-open"></i> Technical Articles</li>
-        </ul>
+        <div class="sidebar-item active" data-tab="toggles">
+          <i data-lucide="toggle-left"></i>
+          <span class="sidebar-item-label">Toggles &amp; Visibility</span>
+        </div>
+        <div class="sidebar-item" data-tab="hero">
+          <i data-lucide="user"></i>
+          <span class="sidebar-item-label">Profile &amp; Hero</span>
+        </div>
+        <div class="sidebar-item" data-tab="about">
+          <i data-lucide="info"></i>
+          <span class="sidebar-item-label">About &amp; Key Stats</span>
+        </div>
+        <div class="sidebar-item" data-tab="experience">
+          <i data-lucide="briefcase"></i>
+          <span class="sidebar-item-label">Work Experience</span>
+        </div>
+        <div class="sidebar-item" data-tab="projects">
+          <i data-lucide="folder"></i>
+          <span class="sidebar-item-label">Projects &amp; Case Studies</span>
+        </div>
+        <div class="sidebar-item" data-tab="skills">
+          <i data-lucide="cpu"></i>
+          <span class="sidebar-item-label">Skills Matrix</span>
+        </div>
+        <div class="sidebar-item" data-tab="writing">
+          <i data-lucide="book-open"></i>
+          <span class="sidebar-item-label">Writing &amp; Open Source</span>
+        </div>
+        <div class="sidebar-item" data-tab="contact">
+          <i data-lucide="mail"></i>
+          <span class="sidebar-item-label">Contact Settings</span>
+        </div>
+        <div class="sidebar-item" data-tab="publish">
+          <i data-lucide="download-cloud"></i>
+          <span class="sidebar-item-label">Deploy &amp; Backup</span>
+        </div>
       </aside>
 
       <!-- Dashboard Viewport -->
       <main class="admin-viewport">
-        
-        <!-- Tab 1: Hero & About -->
-        <section class="admin-tab-view active" id="view-hero-about">
-          <div class="view-header">
-            <h3>Hero &amp; Biography Parameters</h3>
-            <p>Modify primary display headings, availability notifications, and biography texts.</p>
+
+        <!-- ===================================================================
+             TAB 1: TOGGLES & VISIBILITY
+             =================================================================== -->
+        <section class="admin-tab-view active" id="view-toggles">
+          <div class="tab-header">
+            <h2 class="tab-title">Feature &amp; Section Visibility Controls</h2>
+            <p class="tab-desc">Toggle entire sections, global interactive features, or individual Lab sandboxes on or off without touching code.</p>
           </div>
-          <form id="form-hero-about" class="admin-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Developer Name</label>
-                <input type="text" name="name" required>
+
+          <!-- Master Section Toggles -->
+          <div class="toggles-group">
+            <h3 class="toggles-group-title">01 // Master Section Toggles</h3>
+            <div class="toggles-grid" id="sections-toggles-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Feature-Wise Toggles -->
+          <div class="toggles-group">
+            <h3 class="toggles-group-title">02 // Core Feature Toggles</h3>
+            <div class="toggles-grid" id="features-toggles-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Lab Sandboxes Toggles -->
+          <div class="toggles-group">
+            <h3 class="toggles-group-title">03 // Developer Lab Sandbox Toggles</h3>
+            <div class="toggles-grid" id="lab-toggles-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 2: PROFILE & HERO
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-hero">
+          <div class="tab-header">
+            <h2 class="tab-title">Profile &amp; Hero Parameters</h2>
+            <p class="tab-desc">Update your name, title, value proposition, summary, and primary contact links.</p>
+          </div>
+
+          <form id="form-hero" class="admin-card">
+            <div class="admin-form-grid">
+              <div class="form-2col">
+                <div>
+                  <label class="admin-label">Full Name</label>
+                  <input type="text" id="hero-name" class="admin-input" required>
+                </div>
+                <div>
+                  <label class="admin-label">Professional Role Tag</label>
+                  <input type="text" id="hero-role-tag" class="admin-input" placeholder="Staff / Lead Systems Architect" required>
+                </div>
               </div>
-              <div class="form-group">
-                <label>Job Title / Role</label>
-                <input type="text" name="role" required>
+
+              <div>
+                <label class="admin-label">Professional Headline / Title</label>
+                <input type="text" id="hero-title" class="admin-input" required>
+              </div>
+
+              <div>
+                <label class="admin-label">One-Line Value Proposition</label>
+                <input type="text" id="hero-value-prop" class="admin-input" placeholder="I design and ship scalable ERP, backend, and cloud infrastructure." required>
+              </div>
+
+              <div>
+                <label class="admin-label">Hero Bio Summary</label>
+                <textarea id="hero-summary" class="admin-textarea" rows="3" required></textarea>
+              </div>
+
+              <div class="form-2col">
+                <div>
+                  <label class="admin-label">Availability Status</label>
+                  <input type="text" id="hero-availability" class="admin-input" placeholder="Available for Staff / Lead Architecture Roles">
+                </div>
+                <div>
+                  <label class="admin-label">Location</label>
+                  <input type="text" id="hero-location" class="admin-input" placeholder="San Francisco, CA / Remote">
+                </div>
+              </div>
+
+              <div class="form-2col">
+                <div>
+                  <label class="admin-label">Direct Email</label>
+                  <input type="email" id="hero-email" class="admin-input" required>
+                </div>
+                <div>
+                  <label class="admin-label">Resume PDF Path</label>
+                  <input type="text" id="hero-resume-url" class="admin-input" value="assets/resume.pdf">
+                </div>
+              </div>
+
+              <div class="form-2col">
+                <div>
+                  <label class="admin-label">GitHub URL</label>
+                  <input type="url" id="hero-github" class="admin-input">
+                </div>
+                <div>
+                  <label class="admin-label">LinkedIn URL</label>
+                  <input type="url" id="hero-linkedin" class="admin-input">
+                </div>
+              </div>
+
+              <div style="margin-top: var(--space-4);">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i data-lucide="check"></i> Save Profile &amp; Hero
+                </button>
               </div>
             </div>
-            <div class="form-group">
-              <label>Hero Statement</label>
-              <textarea name="subtitle" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-              <label>Specialties (Comma Separated)</label>
-              <input type="text" name="specialties" placeholder="Python, JavaScript, React, etc." required>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Location</label>
-                <input type="text" name="location" required>
-              </div>
-              <div class="form-group">
-                <label>Availability Statement</label>
-                <input type="text" name="availability" required>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Current Learning Focus</label>
-                <input type="text" name="learning" required>
-              </div>
-              <div class="form-group">
-                <label>Fun Fact</label>
-                <input type="text" name="fun_fact" required>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Biography Paragraphs (Use double linebreaks to separate paragraphs)</label>
-              <textarea name="bio" rows="6" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-secondary"><i data-lucide="save"></i> Save Hero &amp; About Settings</button>
           </form>
         </section>
 
-        <!-- Tab 2: Experience Timeline -->
+        <!-- ===================================================================
+             TAB 3: ABOUT & KEY STATS
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-about">
+          <div class="tab-header">
+            <h2 class="tab-title">About &amp; Key Performance Stats</h2>
+            <p class="tab-desc">Edit your systems philosophy narrative and the 4 high-impact metric cards.</p>
+          </div>
+
+          <form id="form-about" class="admin-card">
+            <div class="admin-form-grid">
+              <div>
+                <label class="admin-label">About Biography Paragraphs (Separate paragraphs with double line breaks)</label>
+                <textarea id="about-paragraphs" class="admin-textarea" rows="6" required></textarea>
+              </div>
+
+              <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-top: var(--space-4);">Key Performance Stats</h3>
+              <div id="stats-editor-grid" style="display: flex; flex-direction: column; gap: var(--space-4);">
+                <!-- Populated dynamically -->
+              </div>
+
+              <div style="margin-top: var(--space-4);">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i data-lucide="check"></i> Save About &amp; Stats
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- ===================================================================
+             TAB 4: EXPERIENCE TIMELINE
+             =================================================================== -->
         <section class="admin-tab-view" id="view-experience">
-          <div class="view-header">
-            <h3>Experience Timeline Manager</h3>
-            <p>Add, edit, or delete professional milestones displayed on the vertical timeline.</p>
+          <div class="tab-header" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <h2 class="tab-title">Work Experience Timeline</h2>
+              <p class="tab-desc">Manage your professional career milestones, impact metrics, and technologies.</p>
+            </div>
+            <button type="button" id="btn-add-experience" class="btn btn-secondary btn-sm">
+              <i data-lucide="plus"></i> Add Position
+            </button>
           </div>
-          <div id="experience-list-container">
-            <!-- Populated dynamically -->
+
+          <div id="experience-items-container">
+            <!-- Dynamically populated -->
           </div>
-          <button id="btn-add-experience" class="btn btn-primary" style="margin-top:20px;">
-            <i data-lucide="plus"></i> Add New Timeline Entry
-          </button>
+
+          <div style="margin-top: var(--space-6);">
+            <button type="button" id="btn-save-experience" class="btn btn-primary btn-sm">
+              <i data-lucide="check"></i> Save All Experience Entries
+            </button>
+          </div>
         </section>
 
-        <!-- Tab 3: Skill Matrix -->
-        <section class="admin-tab-view" id="view-skills">
-          <div class="view-header">
-            <h3>Skill Proficiency Calibration</h3>
-            <p>Configure percentage gauges for frontend, backend, and DevOps platforms.</p>
-          </div>
-          <form id="form-skills" class="admin-form">
-            <!-- Dynamic skills form generated here -->
-            <div id="skills-form-grid" class="skills-editor-grid"></div>
-            <button type="submit" class="btn btn-secondary" style="margin-top:20px;">
-              <i data-lucide="save"></i> Save Skill Matrix Levels
+        <!-- ===================================================================
+             TAB 5: FEATURED PROJECTS & CASE STUDIES
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-projects">
+          <div class="tab-header" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <h2 class="tab-title">Featured Projects &amp; Case Studies</h2>
+              <p class="tab-desc">Configure project showcase cards and the deep-dive systems architecture modals.</p>
+            </div>
+            <button type="button" id="btn-add-project" class="btn btn-secondary btn-sm">
+              <i data-lucide="plus"></i> Add Project
             </button>
+          </div>
+
+          <div id="projects-items-container">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div style="margin-top: var(--space-6);">
+            <button type="button" id="btn-save-projects" class="btn btn-primary btn-sm">
+              <i data-lucide="check"></i> Save All Projects &amp; Case Studies
+            </button>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 6: SKILLS MATRIX
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-skills">
+          <div class="tab-header" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <h2 class="tab-title">Technical Skills Matrix</h2>
+              <p class="tab-desc">Organize core competencies by category. Comma-separated entries format as clean chips.</p>
+            </div>
+            <button type="button" id="btn-add-skill-category" class="btn btn-secondary btn-sm">
+              <i data-lucide="plus"></i> Add Category
+            </button>
+          </div>
+
+          <div id="skills-items-container">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div style="margin-top: var(--space-6);">
+            <button type="button" id="btn-save-skills" class="btn btn-primary btn-sm">
+              <i data-lucide="check"></i> Save Skills Matrix
+            </button>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 7: WRITING & OPEN SOURCE
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-writing">
+          <div class="tab-header">
+            <h2 class="tab-title">Technical Publications &amp; Open Source</h2>
+            <p class="tab-desc">Manage articles, open-source repositories, and GitHub performance metrics.</p>
+          </div>
+
+          <!-- Articles -->
+          <div class="admin-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
+              <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold);">Technical Publications</h3>
+              <button type="button" id="btn-add-article" class="btn btn-secondary btn-sm">
+                <i data-lucide="plus"></i> Add Article
+              </button>
+            </div>
+            <div id="articles-items-container"></div>
+          </div>
+
+          <!-- Open Source Repos -->
+          <div class="admin-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
+              <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold);">Open Source Repositories</h3>
+              <button type="button" id="btn-add-repo" class="btn btn-secondary btn-sm">
+                <i data-lucide="plus"></i> Add Repository
+              </button>
+            </div>
+            <div id="repos-items-container"></div>
+          </div>
+
+          <!-- GitHub Performance Stats -->
+          <div class="admin-card">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-bottom: var(--space-4);">GitHub Metrics Summary</h3>
+            <div class="form-2col" style="grid-template-columns: repeat(3, 1fr);">
+              <div>
+                <label class="admin-label">Stars Earned</label>
+                <input type="number" id="os-stars-input" class="admin-input">
+              </div>
+              <div>
+                <label class="admin-label">Contributions Count</label>
+                <input type="text" id="os-contribs-input" class="admin-input">
+              </div>
+              <div>
+                <label class="admin-label">Public Repos Count</label>
+                <input type="number" id="os-repos-input" class="admin-input">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: var(--space-6);">
+            <button type="button" id="btn-save-writing" class="btn btn-primary btn-sm">
+              <i data-lucide="check"></i> Save Writing &amp; Open Source
+            </button>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 8: CONTACT SETTINGS
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-contact">
+          <div class="tab-header">
+            <h2 class="tab-title">Contact Information &amp; Preferences</h2>
+            <p class="tab-desc">Configure the details shown in the contact information card beside the form.</p>
+          </div>
+
+          <form id="form-contact" class="admin-card">
+            <div class="admin-form-grid">
+              <div>
+                <label class="admin-label">Card Heading</label>
+                <input type="text" id="contact-heading" class="admin-input" required>
+              </div>
+
+              <div>
+                <label class="admin-label">Invitation Description</label>
+                <textarea id="contact-desc" class="admin-textarea" rows="3" required></textarea>
+              </div>
+
+              <div class="form-2col">
+                <div>
+                  <label class="admin-label">Direct Contact Email</label>
+                  <input type="email" id="contact-email-input" class="admin-input" required>
+                </div>
+                <div>
+                  <label class="admin-label">Location / Timezone</label>
+                  <input type="text" id="contact-loc-input" class="admin-input" required>
+                </div>
+              </div>
+
+              <div class="form-2col">
+                <div>
+                  <label class="admin-label">Typical Response Time</label>
+                  <input type="text" id="contact-resp-input" class="admin-input" required>
+                </div>
+                <div>
+                  <label class="admin-label">Preferred Channels</label>
+                  <input type="text" id="contact-pref-input" class="admin-input" required>
+                </div>
+              </div>
+
+              <div style="margin-top: var(--space-4);">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i data-lucide="check"></i> Save Contact Settings
+                </button>
+              </div>
+            </div>
           </form>
         </section>
 
-        <!-- Tab 4: Projects Grid -->
-        <section class="admin-tab-view" id="view-projects">
-          <div class="view-header">
-            <h3>Projects &amp; Case Study Editor</h3>
-            <p>Modify visual cards, tech stacks, performance metrics, and detailed architecture logs.</p>
+        <!-- ===================================================================
+             TAB 9: DEPLOY & BACKUP
+             =================================================================== -->
+        <section class="admin-tab-view" id="view-publish">
+          <div class="tab-header">
+            <h2 class="tab-title">Backup, Restore &amp; Permanent Deployment</h2>
+            <p class="tab-desc">Export updated JavaScript code or JSON configurations for zero-code deployments.</p>
           </div>
-          <div class="projects-editor-layout">
-            <aside class="projects-list-sidebar">
-              <h4>Project Items</h4>
-              <ul class="projects-sidebar-list" id="projects-sidebar-list">
-                <!-- Dynamically filled -->
-              </ul>
-              <button id="btn-add-project" class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;">
-                <i data-lucide="plus"></i> Add New Project
+
+          <div class="admin-card">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-bottom: var(--space-2);">
+              <i data-lucide="file-code" style="color: var(--accent);"></i>
+              Download Clean content.js (Production Deployment)
+            </h3>
+            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4);">
+              Generates an updated, formatted <code>data/content.js</code> file containing your current configurations. Download this file and drop it into <code>data/content.js</code> to permanently deploy your edits to GitHub Pages, Vercel, or Netlify.
+            </p>
+            <button type="button" id="btn-download-content-js" class="btn btn-primary btn-sm">
+              <i data-lucide="download"></i> Download updated content.js
+            </button>
+          </div>
+
+          <div class="admin-card">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold); margin-bottom: var(--space-2);">
+              <i data-lucide="archive" style="color: var(--accent);"></i>
+              JSON Configuration Backup &amp; Restore
+            </h3>
+            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4);">
+              Save a full snapshot of your customized portfolio state, or import a previously exported configuration.
+            </p>
+            <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+              <button type="button" id="btn-export-json" class="btn btn-secondary btn-sm">
+                <i data-lucide="download"></i> Export JSON Backup
               </button>
-            </aside>
-            <main class="project-details-editor">
-              <div id="project-editor-empty" class="editor-empty-state">
-                <i data-lucide="folder-kanban" style="width:48px;height:48px;"></i>
-                <p>Select a project from the left sidebar to edit details, or create a new one.</p>
-              </div>
-              <form id="form-project-editor" class="admin-form" style="display:none;">
-                <input type="hidden" name="id">
-                
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Project Title</label>
-                    <input type="text" name="title" required>
-                  </div>
-                  <div class="form-group">
-                    <label>Category</label>
-                    <select name="category">
-                      <option value="Web Applications">Web Applications</option>
-                      <option value="Backend Systems">Backend Systems</option>
-                      <option value="ERPNext / Frappe">ERPNext / Frappe</option>
-                      <option value="DevOps">DevOps</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Status Badge</label>
-                    <input type="text" name="status" placeholder="Production / Maintenance / Active" required>
-                  </div>
-                  <div class="form-group">
-                    <label>GitHub Stars (Number)</label>
-                    <input type="number" name="github_stars" placeholder="0">
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>Card Summary Description</label>
-                  <textarea name="summary" rows="2" required></textarea>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Client</label>
-                    <input type="text" name="client" required>
-                  </div>
-                  <div class="form-group">
-                    <label>Timeline Span</label>
-                    <input type="text" name="timeline" placeholder="3 Months (Q1 2026)" required>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Role</label>
-                    <input type="text" name="role" required>
-                  </div>
-                  <div class="form-group">
-                    <label>Team Size</label>
-                    <input type="text" name="team_size" placeholder="3 Engineers" required>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Live Demo URL</label>
-                    <input type="text" name="live_demo" value="#" required>
-                  </div>
-                  <div class="form-group">
-                    <label>GitHub Repo URL</label>
-                    <input type="text" name="github_repo" required>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>Problem Statement</label>
-                  <textarea name="problem" rows="3" required></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label>Requirements</label>
-                  <textarea name="requirements" rows="2" required></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label>Architectural Solution</label>
-                  <textarea name="solution" rows="4" required></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label>Challenges &amp; Lessons</label>
-                  <textarea name="challenges" rows="3" required></textarea>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Frontend Tech (Comma Separated)</label>
-                    <input type="text" name="tech_frontend" placeholder="React, TypeScript" required>
-                  </div>
-                  <div class="form-group">
-                    <label>Backend Tech (Comma Separated)</label>
-                    <input type="text" name="tech_backend" placeholder="Python, Frappe" required>
-                  </div>
-                  <div class="form-group">
-                    <label>Cloud / DevOps Tech (Comma Separated)</label>
-                    <input type="text" name="tech_cloud" placeholder="Kubernetes, AWS" required>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Lighthouse Score</label>
-                    <input type="text" name="metric_lighthouse" placeholder="98/100" required>
-                  </div>
-                  <div class="form-group">
-                    <label>Load Time</label>
-                    <input type="text" name="metric_load_time" placeholder="1.2s" required>
-                  </div>
-                  <div class="form-group">
-                    <label>API Latency</label>
-                    <input type="text" name="metric_latency" placeholder="85ms average" required>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label>Architecture Node Names (Comma Separated, 3 steps)</label>
-                  <input type="text" name="arch_nodes" placeholder="Frontend Client, Backend Core, MariaDB" required>
-                </div>
-
-                <div class="form-group">
-                  <label>Code Snippet Showcase</label>
-                  <textarea name="code_snippet" rows="8" class="mono-input" required></textarea>
-                </div>
-
-                <div style="display:flex;gap:12px;margin-top:20px;">
-                  <button type="submit" class="btn btn-secondary"><i data-lucide="save"></i> Save Project Details</button>
-                  <button type="button" id="btn-delete-project" class="btn btn-secondary" style="border-color:var(--danger-color);color:var(--danger-color);">
-                    <i data-lucide="trash-2"></i> Delete Project
-                  </button>
-                </div>
-              </form>
-            </main>
+              <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                <i data-lucide="upload"></i> Import JSON Backup
+                <input type="file" id="input-import-json" accept=".json" style="display: none;">
+              </label>
+            </div>
           </div>
-        </section>
 
-        <!-- Tab 5: Technical Articles -->
-        <section class="admin-tab-view" id="view-blog">
-          <div class="view-header">
-            <h3>Technical Blog Editor</h3>
-            <p>Write or edit technical guides using Markdown. Preview rendering outputs side-by-side.</p>
-          </div>
-          <div class="blog-editor-layout">
-            <aside class="blog-list-sidebar">
-              <h4>Articles</h4>
-              <ul class="blog-sidebar-list" id="blog-sidebar-list">
-                <!-- Dynamically filled -->
-              </ul>
-              <button id="btn-add-article" class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;">
-                <i data-lucide="plus"></i> Write New Article
-              </button>
-            </aside>
-            <main class="blog-article-editor">
-              <div id="blog-editor-empty" class="editor-empty-state">
-                <i data-lucide="book-open" style="width:48px;height:48px;"></i>
-                <p>Select an article from the left sidebar to edit content, or write a new one.</p>
-              </div>
-              <div id="blog-editor-container" style="display:none;height:100%;flex-direction:column;">
-                <form id="form-blog-editor" class="admin-form" style="display:flex;flex-direction:column;flex-grow:1;">
-                  <input type="hidden" name="id">
-                  
-                  <div class="form-row">
-                    <div class="form-group" style="flex:2;">
-                      <label>Article Title</label>
-                      <input type="text" name="title" required>
-                    </div>
-                    <div class="form-group" style="flex:1;">
-                      <label>Publication Date</label>
-                      <input type="text" name="date" placeholder="March 12, 2026" required>
-                    </div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label>Card Excerpt (1-2 sentences)</label>
-                    <textarea name="excerpt" rows="2" required></textarea>
-                  </div>
-
-                  <div class="blog-textarea-preview-split">
-                    <div class="split-pane">
-                      <label>Markdown Editor Source</label>
-                      <textarea name="markdown_content" id="blog-markdown-input" required></textarea>
-                    </div>
-                    <div class="split-pane">
-                      <label>HTML Output Preview</label>
-                      <div class="markdown-preview-output" id="blog-preview-output"></div>
-                    </div>
-                  </div>
-
-                  <div style="display:flex;gap:12px;margin-top:20px;">
-                    <button type="submit" class="btn btn-secondary"><i data-lucide="save"></i> Save Article</button>
-                    <button type="button" id="btn-delete-article" class="btn btn-secondary" style="border-color:var(--danger-color);color:var(--danger-color);">
-                      <i data-lucide="trash-2"></i> Delete Article
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </main>
+          <div class="admin-card" style="border-color: rgba(239, 68, 68, 0.3);">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-semibold); color: var(--danger, #ef4444); margin-bottom: var(--space-2);">
+              <i data-lucide="alert-triangle"></i>
+              Reset to Factory Defaults
+            </h3>
+            <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-4);">
+              Erase all local browser modifications and restore original default content and feature flags.
+            </p>
+            <button type="button" id="btn-factory-reset" class="btn btn-secondary btn-sm" style="color: var(--danger, #ef4444); border-color: rgba(239, 68, 68, 0.4);">
+              <i data-lucide="rotate-ccw"></i> Reset All Data &amp; Flags
+            </button>
           </div>
         </section>
 
@@ -386,49 +505,14 @@
     </div>
   </div>
 
-  <!-- Dynamic Modal for Experience / Popups -->
-  <div id="experience-modal" class="admin-modal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h4 id="exp-modal-title">Timeline Entry</h4>
-        <button id="exp-modal-close" class="modal-close-btn">&times;</button>
-      </div>
-      <form id="form-exp-modal" class="admin-form">
-        <input type="hidden" name="index" value="-1">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Job Title</label>
-            <input type="text" name="title" required>
-          </div>
-          <div class="form-group">
-            <label>Company Name</label>
-            <input type="text" name="company" required>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Duration / Period</label>
-            <input type="text" name="period" placeholder="Jan 2024 - Present" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Summary Description</label>
-          <input type="text" name="summary" required>
-        </div>
-        <div class="form-group">
-          <label>Achievements (One per line)</label>
-          <textarea name="achievements" rows="4" placeholder="Designed custom inventory pipeline reducing locking by 92%&#10;Orchestrated database migration to Kubernetes..." required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Technologies Used (Comma Separated)</label>
-          <input type="text" name="tags" placeholder="Frappe, MariaDB, Redis, AWS" required>
-        </div>
-        <button type="submit" class="btn btn-primary" style="margin-top:16px;">Save Entry</button>
-      </form>
-    </div>
+  <!-- Toast Notification Container -->
+  <div id="admin-toast" class="admin-toast success">
+    <i data-lucide="check-circle" style="color: var(--success); width: 18px; height: 18px;"></i>
+    <span id="toast-message">Settings saved successfully.</span>
   </div>
 
-  <!-- Admin Controls Logic -->
-  <script src="admin.js"></script>
+  <!-- Admin Controller Module -->
+  <script type="module" src="admin.js"></script>
 </body>
+
 </html>

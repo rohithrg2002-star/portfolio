@@ -1,1855 +1,1111 @@
-// Admin Panel Content Controller
-(function() {
-  const PASSCODE_HASH = 'admin123'; // Base passcode
-
-  // Default Fallback Database Configuration
-  const DEFAULT_CONFIG = {
-    hero: {
-      name: "Alex Carter",
-      role: "Lead Software Engineer & Systems Architect",
-      subtitle: "I'm Alex Carter, a Lead Systems Architect and Full Stack Engineer. I build clean, high-performance backends, custom ERPNext/Frappe setups, and robust distributed systems.",
-      specialties: "Python / Django, JavaScript / React, Frappe / ERPNext, Node.js / Express, Distributed Systems, Kubernetes / DevOps",
-      location: "San Francisco, CA (GMT-7)",
-      availability: "Consulting & contract roles (20h/week)",
-      learning: "Rust concurrency primitives, WebGPU shaders",
-      fun_fact: "Can compile Linux kernels from scratch and roast coffee beans at 220°C",
-      bio: "I am a software engineer with over 7 years of professional experience writing code, configuring cloud networks, and optimizing relational databases. I believe that writing code is only 30% of the job; the other 70% is understanding business requirements, architecting systems for growth, and building user-centric interfaces.\n\nMy professional expertise lies in constructing custom integrations on top of the Frappe Framework / ERPNext, building high-throughput REST APIs in Python (Django / FastAPI), and orchestrating containers in production environments using Kubernetes (EKS/GKE)."
-    },
-    experience: [
-      {
-        title: "Lead Systems Architect",
-        company: "Apex Tech Systems",
-        period: "Jan 2024 - Present",
-        summary: "Architecting distributed ERP integrations and auto-scaling API pipelines to handle peak seasonal traffic spikes.",
-        achievements: [
-          "Designed custom Frappe stock-reconciliation pipeline reducing locking conflicts by 92%.",
-          "Orchestrated migration from VM-based workloads to Kubernetes, decreasing cloud compute costs by 35%.",
-          "Mentored a team of 6 engineers on database optimization, clean code practices, and unit test automation."
-        ],
-        tags: "Frappe, MariaDB, Redis, AWS EKS, Docker"
-      },
-      {
-        title: "Senior Software Engineer",
-        company: "CloudScale Labs",
-        period: "Jun 2021 - Dec 2023",
-        summary: "Owned the API services group responsible for processing high-velocity event tracking data.",
-        achievements: [
-          "Built a telemetry ingestion service in Go that handles 50,000+ API requests per second with less than 2ms response latency.",
-          "Optimized Django Rest Framework serializations, reducing query count (N+1 queries) by 60%.",
-          "Integrated continuous deployment pipelines using GitHub Actions and Helm charts for zero-downtime updates."
-        ],
-        tags: "Go, Python, Django, PostgreSQL, Grafana"
-      },
-      {
-        title: "Software Developer",
-        company: "DevCore Integration Group",
-        period: "Mar 2019 - May 2021",
-        summary: "Developed full-stack web products and integrated external third-party supply APIs.",
-        achievements: [
-          "Designed dynamic frontend dashboards in React, reducing load time from 4.2 seconds to 1.1 seconds.",
-          "Wrote complex Celery task schedulers for bulk email notification delivery and report generation.",
-          "Maintained and extended legacy MariaDB database tables, writing custom SQL migration patches."
-        ],
-        tags: "React, Node.js, PostgreSQL, Celery, Redis"
-      }
-    ],
-    skills: {
-      languages: [
-        { name: "Python", value: 95 },
-        { name: "JavaScript / TypeScript", value: 90 },
-        { name: "Go (Golang)", value: 80 },
-        { name: "SQL (MariaDB/Postgres)", value: 92 }
-      ],
-      frameworks: [
-        { name: "Frappe / ERPNext", value: 95 },
-        { name: "Django / FastAPI", value: 90 },
-        { name: "React / Next.js", value: 85 },
-        { name: "Node.js (Express)", value: 80 }
-      ],
-      cloud: [
-        { name: "Docker / Kubernetes", value: 88 },
-        { name: "AWS (ECS/EKS/RDS/S3)", value: 85 },
-        { name: "Terraform / IaC", value: 78 },
-        { name: "GitHub Actions CI/CD", value: 90 }
-      ]
-    },
-    projects: {
-      "nexis-erp": {
-        id: "nexis-erp",
-        title: "Nexis ERP Custom Integration",
-        category: "ERPNext / Frappe",
-        summary: "High-throughput API sync engine for ERPNext that optimizes MariaDB query execution and reduces sync time by 85% for large-scale retail systems.",
-        thumbnail: "assets/images/nexis_erp_thumbnail.png",
-        featured: true,
-        status: "Production",
-        github_stars: 42,
-        metrics: {
-          users: "15,000+ Daily",
-          performance: "85% Sync Speedup",
-          latency: "< 120ms API response",
-          business_impact: "Saved $120k/yr in infrastructure costs"
-        },
-        case_study: {
-          timeline: "3 Months (Q1 2026)",
-          client: "Apex Retail Group",
-          team_size: "3 Engineers",
-          role: "Lead Systems Architect",
-          live_demo: "#",
-          github_repo: "https://github.com/developer/nexis-erp-sync",
-          problem: "Apex Retail Group had over 100 outlets syncing inventory data to a centralized ERPNext server. Due to MariaDB lock contention and unindexed search queries, sync operations took up to 45 seconds, causing timeouts, duplicate transactions, and severe checkout delays.",
-          requirements: "Reduce synchronization latency to under 3 seconds, eliminate MariaDB deadlocks, support offline synchronization, and build a robust transaction audit trail.",
-          challenges: "1. Frappe's default ORM (`Document.save`) was too slow for bulk operations (over 10,000 items).\n2. Real-time stock validations triggered circular hooks that caused database lock escalations.\n3. Weak network conditions at remote checkout terminals led to half-completed sync requests.",
-          solution: "We bypassed the standard ORM for high-frequency writes by implementing a custom PyPika query builder pipeline combined with a Redis-backed queue system (RQ). We added an optimistic locking mechanism on inventory quantities and built a transactional middleware to ensure atomic rollbacks.",
-          results: "Inventory synchronization was reduced from 45 seconds to 1.8 seconds. MariaDB database utilization dropped from 94% to 22% under peak load, and double-entry synchronization bugs were entirely resolved.",
-          architecture: {
-            frontend: "Vite + Tailwind CSS (Custom ERP Portal)",
-            backend: "Frappe Framework (v15) & Python",
-            database: "MariaDB with Redis caching layer"
-          },
-          tech_stack: {
-            frontend: ["React", "TypeScript", "TailwindCSS"],
-            backend: ["Python", "Frappe", "Redis", "RQ"],
-            cloud_devops: ["AWS ECS", "Docker", "Terraform"]
-          },
-          code_snippet: `import frappe
-from pypika import Table, Query
-
-@frappe.whitelist()
-def bulk_sync_inventory(items):
-    """
-    High-performance bulk synchronization bypassing the standard Frappe ORM
-    using PyPika query builder and raw MariaDB bulk insert.
-    """
-    if not items: return {"status": "success", "synced": 0}
-    frappe.has_permission("Stock Ledger Entry", throw=True)
-    
-    sle = Table("tabStock Ledger Entry")
-    query = Query.into(sle).columns(
-        "name", "item_code", "warehouse", "actual_qty", "posting_date", "posting_time"
-    )
-    
-    for item in items:
-        uid = frappe.generate_hash(length=10)
-        query = query.insert(
-            f"SLE-{uid}", item.get("item_code"), item.get("warehouse"),
-            item.get("qty"), frappe.utils.nowdate(), frappe.utils.nowtime()
-        )
-        
-    try:
-        frappe.db.sql(str(query), as_dict=False)
-        frappe.cache().delete_value("stock_balance_cache")
-        frappe.db.commit()
-        return {"status": "success", "synced": len(items)}
-    except Exception as e:
-        frappe.db.rollback()
-        frappe.log_error(message=str(e), title="Bulk Sync Failed")
-        frappe.throw("Bulk synchronization aborted due to database transaction failure.")`,
-          metrics_cards: {
-            lighthouse: "98/100",
-            load_time: "1.2s",
-            api_latency: "85ms average"
-          }
-        }
-      },
-      "aether-db": {
-        id: "aether-db",
-        title: "AetherDB: Distributed Key-Value Store",
-        category: "Backend Systems",
-        summary: "Lightweight, highly available distributed key-value store utilizing the Raft consensus protocol for guaranteed state consistency across distributed clusters.",
-        thumbnail: "assets/images/aether_db_thumbnail.png",
-        featured: true,
-        status: "Active Development",
-        github_stars: 284,
-        metrics: {
-          users: "2,400+ GitHub Stars",
-          performance: "50,000 req/sec writes",
-          latency: "< 2ms read latency",
-          business_impact: "Zero split-brain occurrences"
-        },
-        case_study: {
-          timeline: "6 Months (Q3-Q4 2025)",
-          client: "Open Source Community",
-          team_size: "Solo Project",
-          role: "Creator & Core Maintainer",
-          live_demo: "#",
-          github_repo: "https://github.com/developer/aetherdb",
-          problem: "Existing distributed configurations either relied heavily on ZooKeeper or suffered from consistency bugs during network partitions (split-brain). I wanted to create a developer-friendly key-value store.",
-          requirements: "Strict linearizable reads, fault tolerance, dynamic membership, and snapshotting.",
-          challenges: "1. Managing term elections.\n2. Implementing compaction.\n3. Custom TCP serialization.",
-          solution: "Built a custom Raft implementation in Go. Utilized Protocol Buffers and copy-on-write memory snapshots.",
-          results: "AetherDB handles up to 50k write operations per second, with cluster quorum recovery in less than 150ms.",
-          architecture: {
-            frontend: "React-based health dashboard",
-            backend: "Go (Golang) Raft Core Engine",
-            database: "LSM-Tree local storage engine"
-          },
-          tech_stack: {
-            frontend: ["React", "Chart.js"],
-            backend: ["Go", "gRPC", "Protobuf"],
-            cloud_devops: ["Kubernetes", "Docker", "Helm"]
-          },
-          code_snippet: `package main
-
-import (
-	"sync"
-)
-
-type NodeRole int
-const (
-	Follower NodeRole = iota
-	Candidate
-	Leader
-)
-
-type RaftNode struct {
-	mu          sync.Mutex
-	id          int
-	currentTerm int
-	votedFor    int
-	role        NodeRole
-}
-
-func (rn *RaftNode) startElection() {
-	rn.mu.Lock()
-	rn.role = Candidate
-	rn.currentTerm++
-	rn.votedFor = rn.id
-	rn.mu.Unlock()
-
-	votesReceived := 1
-	for _, peer := range rn.getPeers() {
-		go func(p Peer) {
-			args := RequestVoteArgs{Term: rn.currentTerm, CandidateId: rn.id}
-			reply := RequestVoteReply{}
-			if rn.sendRequestVote(p, &args, &reply) {
-				rn.mu.Lock()
-				defer rn.mu.Unlock()
-				if reply.VoteGranted && rn.role == Candidate {
-					votesReceived++
-					if votesReceived > (len(rn.getPeers())+1)/2 {
-						rn.role = Leader
-						rn.startHeartbeats()
-					}
-				}
-			}
-		}(peer)
-	}
-}`,
-          metrics_cards: {
-            lighthouse: "N/A (CLI)",
-            load_time: "< 10ms startup",
-            api_latency: "< 2ms API operations"
-          }
-        }
-      },
-      "synthanalyze": {
-        id: "synthanalyze",
-        title: "SynthAnalytics SaaS Dashboard",
-        category: "Web Applications",
-        summary: "Real-time analytics engine and dashboard visualizing user conversion funnels, event stream latency, and live server health metrics via WebSockets.",
-        thumbnail: "assets/images/synthanalyze_thumbnail.png",
-        featured: false,
-        status: "Production",
-        github_stars: 115,
-        metrics: {
-          users: "8,000+ Active Accounts",
-          performance: "Chart rendering < 15ms",
-          latency: "50ms WebSocket updates",
-          business_impact: "Increased conversion by 14%"
-        },
-        case_study: {
-          timeline: "4 Months (Q2 2025)",
-          client: "SynthSaaS Inc.",
-          team_size: "2 Engineers",
-          role: "Full Stack Engineer",
-          live_demo: "#",
-          github_repo: "https://github.com/developer/synthanalyze",
-          problem: "SynthSaaS needed a dashboard to show their users detailed live metrics of API usage and server request rates. Existing analytics tools suffered from high integration complexity and delayed reporting by up to 5 minutes.",
-          requirements: "Sub-second real-time charts, support for multi-tenant custom dashboard layouts, CSV report export, and a clean theme-matching interface.",
-          challenges: "1. Visualizing over 100,000 data points in real time on mobile browsers without freezing the browser thread.\n2. Keeping WebSocket connections alive across variable networks.\n3. Managing complex dashboard filters in a centralized frontend state store.",
-          solution: "We built the dashboard using React with dynamic canvas-based chart rendering (using custom WebGL elements). We handled WebSocket reconnections using exponential backoff with jitter and stored filter layouts in an immutable URL-synced state store.",
-          results: "The dashboard rendered high-volume real-time feeds smoothly at 60fps. Users saw analytical updates within 50 milliseconds of event emission. Lead conversion rates increased by 14% due to the immediate visibility of usage trends.",
-          architecture: {
-            frontend: "React with Tailwind CSS & Canvas charting",
-            backend: "Node.js (Express) with Socket.io server",
-            database: "TimescaleDB (PostgreSQL) for time-series analytics"
-          },
-          tech_stack: {
-            frontend: ["React", "Next.js", "Chart.js", "WebSockets"],
-            backend: ["Node.js", "Express", "Socket.io"],
-            cloud_devops: ["GCP GKE", "Docker", "Terraform"]
-          },
-          code_snippet: `import React, { useEffect, useRef } from 'react';
-
-export const RealTimeChart = ({ dataPoints }) => {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-    ctx.scale(dpr, dpr);
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = 'rgba(99, 102, 241, 0.8)';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    
-    const step = canvas.clientWidth / (dataPoints.length - 1);
-    dataPoints.forEach((point, index) => {
-      const x = index * step;
-      const y = canvas.clientHeight - (point.value * canvas.clientHeight);
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-  }, [dataPoints]);
-
-  return <canvas ref={canvasRef} className="w-full h-64 bg-slate-900 rounded-lg p-4" />;
-};`,
-          metrics_cards: {
-            lighthouse: "100/100",
-            load_time: "0.8s FCP",
-            api_latency: "< 30ms REST queries"
-          }
-        }
-      },
-      "opsflow": {
-        id: "opsflow",
-        title: "OpsFlow: Kubernetes Automation Platform",
-        category: "DevOps",
-        summary: "An infrastructure-as-code automation dashboard orchestrating deployment pipelines, secrets injection, and isolated staging environments.",
-        thumbnail: "assets/images/opsflow_thumbnail.png",
-        featured: false,
-        status: "Maintenance",
-        github_stars: 86,
-        metrics: {
-          users: "18 Dev Teams",
-          performance: "Staging sandbox < 90s",
-          latency: "Zero downtime builds",
-          business_impact: "Reduced deployment times by 60%"
-        },
-        case_study: {
-          timeline: "5 Months (Q4 2025)",
-          client: "Internal Infrastructure team",
-          team_size: "2 Engineers",
-          role: "Senior Infrastructure Engineer",
-          live_demo: "#",
-          github_repo: "https://github.com/developer/opsflow",
-          problem: "Engineers had to wait for hours to get automated staging environments to test branches. Cloud resources were left running indefinitely, inflating hosting bills by 40%.",
-          requirements: "Automated deployment of sandbox staging clusters on git branch push, automatic clean-up of idle environments, and encrypted secrets storage.",
-          challenges: "1. Dynamically creating DNS records and certificates without rate-limit blockages.\n2. Securing cluster access tokens.\n3. Monitoring cluster RAM and CPU metrics dynamically.",
-          solution: "We wrote a custom Kubernetes operator in Go that monitors git branch Webhooks, spins up lightweight k3s sandboxes on AWS EC2, manages Route53 records via custom scripts, and injects HashiCorp Vault secrets directly into pods.",
-          results: "Deployment time for dynamic sandbox servers dropped to under 90 seconds. Automated clean-up of idle sandbox instances reduced monthly AWS bills by $8,500.",
-          architecture: {
-            frontend: "Svelte (Admin portal UI)",
-            backend: "Go (Kubernetes Controller)",
-            database: "PostgreSQL & HashiCorp Vault"
-          },
-          tech_stack: {
-            frontend: ["HTML5", "CSS3", "JavaScript"],
-            backend: ["Go", "Vault API", "Docker SDK"],
-            cloud_devops: ["AWS EKS", "Terraform", "ArgoCD", "Kubernetes"]
-          },
-          code_snippet: `apiVersion: batch/v1
-kind: Job
-metadata:
-  name: deploy-sandbox-sandboxname
-  namespace: opsflow-system
-spec:
-  template:
-    spec:
-      containers:
-      - name: builder
-        image: hashicorp/terraform:1.6.0
-        command: ["sh", "-c"]
-        args:
-        - |
-          terraform init
-          terraform apply -var="sandbox_id=sandboxname" -auto-approve
-          kubectl apply -f /app/deployment-manifests/
-        env:
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: aws-credentials
-              key: access-key
-      restartPolicy: Never`,
-          metrics_cards: {
-            lighthouse: "97/100",
-            load_time: "1.1s",
-            api_latency: "< 150ms orchestration"
-          }
-        }
-      }
-    },
-    articles: {
-      "optimizing-frappe-queries": `
-# Optimizing database queries in Frappe Framework and ERPNext
-
-When scaling ERPNext to handle millions of transactions, database performance is usually the primary bottleneck. Let's explore how we optimized inventory queries in a high-volume custom Frappe app.
-
-## The Problem
-By default, the Frappe ORM processes documents individually. Running \`frappe.get_doc\` or \`frm.save\` in a loop triggers:
-1. Multiple SELECT queries to fetch child tables.
-2. Individual validation hooks (which might run additional queries).
-3. A separate UPDATE/INSERT for each record.
-
-Under high load, this causes massive database lock contention and Gunicorn worker timeouts.
-
-## The Solution: Bulk Query Execution with PyPika
-Instead of relying on \`frappe.get_doc\` for bulk updates, we can bypass the ORM and construct safe, parameterized queries using Frappe's built-in PyPika wrapper:
-
-\`\`\`python
-import frappe
-from pypika import Table, Query
-
-def bulk_update_item_status(item_codes, status):
-    # Get a reference to the MariaDB table
-    item_table = Table("tabItem")
-    
-    # Build query
-    query = (
-        Query.update(item_table)
-        .set(item_table.disabled, 1 if status == "Disabled" else 0)
-        .where(item_table.item_code.isin(item_codes))
-    )
-    
-    # Execute query
-    frappe.db.sql(str(query))
-\`\`\`
-
-## Optimizing Indexes
-In addition to bulk queries, adding a composite index on frequently searched fields (e.g., \`item_code\` and \`warehouse\` in \`tabStock Ledger Entry\`) can reduce index lookup latency:
-
-\`\`\`sql
-CREATE INDEX idx_item_warehouse ON \`tabStock Ledger Entry\` (item_code, warehouse);
-\`\`\`
-
-## Performance Metrics
-After executing these optimizations:
-* **API response times** decreased by **85%**.
-* **Database lock wait times** dropped to **zero**.
-* **Daily transaction throughput** increased by **300%** without CPU scaling.
-      `,
-      "scaling-django-apis": `
-# Scaling Django APIs to 50k Requests Per Minute
-
-Building REST APIs with Django Rest Framework (DRF) is straightforward, but scaling them to support tens of thousands of requests per minute requires architectural changes.
-
-## 1. Eliminate N+1 Queries
-The most common source of API latency is the N+1 query problem, where Django fetches foreign keys in separate queries. Use \`select_related\` (for ForeignKey and OneToOne) and \`prefetch_related\` (for ManyToMany) to fetch all records in a single join query.
-
-\`\`\`python
-# Before (Slow)
-queryset = Book.objects.all() # Triggers query for author on every iteration
-
-# After (Fast)
-queryset = Book.objects.select_related('author').all()
-\`\`\`
-
-## 2. Redis Cache Middleware
-Implementing an aggressive caching layer for static data or heavy read endpoints can reduce database load:
-
-\`\`\`python
-from django.core.cache import cache
-
-def get_dashboard_metrics(request):
-    cache_key = "dashboard_metrics_data"
-    data = cache.get(cache_key)
-    
-    if not data:
-        data = calculate_heavy_metrics()
-        cache.set(cache_key, data, timeout=300) # Cache for 5 mins
-        
-    return JsonResponse(data)
-\`\`\`
-
-## 3. Offloading Work with Celery
-Never run time-consuming tasks (like email delivery or pdf generation) in the main request-response cycle. Offload them to background worker processes:
-
-\`\`\`python
-# tasks.py
-@shared_task
-def send_welcome_email(user_id):
-    user = User.objects.get(id=user_id)
-    send_mail("Welcome!", "Thanks for signing up.", "admin@saas.com", [user.email])
-\`\`\`
-
-## Key Results
-* Average API Latency: **from 320ms to 45ms**
-* CPU Utilization: **Reduced by 55%**
-* System Throughput: **Successfully sustained 50k RPM**
-      `
-    }
-  };
-
-  // Active configurations state
-  let config = {};
-
-  // Lifecycle Entry
-  document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Lucide Icons
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
-
-    // Load active config (LocalStorage or Default)
-    const stored = localStorage.getItem('portfolio_config');
-    config = stored ? JSON.parse(stored) : { ...DEFAULT_CONFIG };
-
-    // Setup Login Form Validation
-    const loginForm = document.getElementById('login-form');
-    const passcode = document.getElementById('passcode-input');
-    const errorMsg = document.getElementById('login-error');
-
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (passcode.value === PASSCODE_HASH) {
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('admin-panel').style.display = 'flex';
-        // Initialize dashboard viewport values
-        initDashboard();
-      } else {
-        errorMsg.style.display = 'block';
-        passcode.value = '';
-      }
-    });
-
-    // Handle Log Out
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      localStorage.removeItem('admin_authenticated');
-      window.location.reload();
-    });
-
-    // Sidebar navigation tabs toggle
-    const sidebarItems = document.querySelectorAll('.sidebar-item');
-    sidebarItems.forEach(item => {
-      item.addEventListener('click', () => {
-        sidebarItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-
-        const tabName = item.getAttribute('data-tab');
-        document.querySelectorAll('.admin-tab-view').forEach(view => {
-          view.classList.remove('active');
-        });
-        document.getElementById(`view-${tabName}`).classList.add('active');
-      });
-    });
-
-    // Publish & Export Download
-    document.getElementById('btn-export').addEventListener('click', () => {
-      exportCodebase();
-    });
-  });
-
-  /* ==========================================================================
-     CORE DASHBOARD INITIALIZATION
-     ========================================================================== */
-  function initDashboard() {
-    // 1. Hero & About
-    populateHeroForm();
-    
-    // 2. Experience Timeline
-    renderExperienceList();
-
-    // 3. Skill Matrix
-    renderSkillsForm();
-
-    // 4. Projects Editor
-    renderProjectsSidebar();
-
-    // 5. Blog Editor
-    renderBlogSidebar();
-  }
-
-  function saveConfig() {
-    localStorage.setItem('portfolio_config', JSON.stringify(config));
-  }
-
-  /* ==========================================================================
-     TAB 1: HERO & ABOUT
-     ========================================================================== */
-  function populateHeroForm() {
-    const form = document.getElementById('form-hero-about');
-    if (!form) return;
-
-    const data = config.hero;
-    form.name.value = data.name;
-    form.role.value = data.role;
-    form.subtitle.value = data.subtitle;
-    form.specialties.value = data.specialties;
-    form.location.value = data.location;
-    form.availability.value = data.availability;
-    form.learning.value = data.learning;
-    form.fun_fact.value = data.fun_fact;
-    form.bio.value = data.bio;
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      config.hero = {
-        name: form.name.value.trim(),
-        role: form.role.value.trim(),
-        subtitle: form.subtitle.value.trim(),
-        specialties: form.specialties.value.trim(),
-        location: form.location.value.trim(),
-        availability: form.availability.value.trim(),
-        learning: form.learning.value.trim(),
-        fun_fact: form.fun_fact.value.trim(),
-        bio: form.bio.value.trim()
-      };
-      saveConfig();
-      alert('Hero & Biography settings saved successfully!');
-    });
-  }
-
-  /* ==========================================================================
-     TAB 2: EXPERIENCE TIMELINE
-     ========================================================================== */
-  const expModal = document.getElementById('experience-modal');
-  const expForm = document.getElementById('form-exp-modal');
-
-  function renderExperienceList() {
-    const container = document.getElementById('experience-list-container');
-    if (!container) return;
-
-    container.innerHTML = '';
-    config.experience.forEach((exp, idx) => {
-      const card = document.createElement('div');
-      card.className = 'exp-card-item';
-      card.innerHTML = `
-        <div class="exp-info-summary">
-          <h4>${exp.title} <span>@ ${exp.company}</span></h4>
-          <p>${exp.period} | ${exp.summary}</p>
-        </div>
-        <div class="exp-actions-group">
-          <button class="btn btn-secondary btn-edit-exp" data-index="${idx}"><i data-lucide="edit-3" style="width:14px;height:14px;"></i> Edit</button>
-          <button class="btn btn-secondary btn-delete-exp" data-index="${idx}" style="color:var(--danger-color);border-color:var(--danger-color);"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete</button>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-
-    if (window.lucide) window.lucide.createIcons();
-
-    // Attach listeners
-    container.querySelectorAll('.btn-edit-exp').forEach(btn => {
-      btn.addEventListener('click', () => {
-        openExpModal(parseInt(btn.getAttribute('data-index')));
-      });
-    });
-
-    container.querySelectorAll('.btn-delete-exp').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.getAttribute('data-index'));
-        if (confirm('Are you sure you want to delete this job entry?')) {
-          config.experience.splice(idx, 1);
-          saveConfig();
-          renderExperienceList();
-        }
-      });
-    });
-  }
-
-  document.getElementById('btn-add-experience').addEventListener('click', () => {
-    openExpModal(-1);
-  });
-
-  document.getElementById('exp-modal-close').addEventListener('click', () => {
-    expModal.classList.remove('open');
-  });
-
-  function openExpModal(idx) {
-    document.getElementById('exp-modal-title').textContent = idx === -1 ? 'Add New Timeline Entry' : 'Edit Timeline Entry';
-    expForm.index.value = idx;
-
-    if (idx === -1) {
-      expForm.reset();
-    } else {
-      const exp = config.experience[idx];
-      expForm.title.value = exp.title;
-      expForm.company.value = exp.company;
-      expForm.period.value = exp.period;
-      expForm.summary.value = exp.summary;
-      expForm.achievements.value = exp.achievements.join('\n');
-      expForm.tags.value = exp.tags;
-    }
-    expModal.classList.add('open');
-  }
-
-  expForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const idx = parseInt(expForm.index.value);
-    
-    const expObj = {
-      title: expForm.title.value.trim(),
-      company: expForm.company.value.trim(),
-      period: expForm.period.value.trim(),
-      summary: expForm.summary.value.trim(),
-      achievements: expForm.achievements.value.split('\n').map(l => l.trim()).filter(l => l.length > 0),
-      tags: expForm.tags.value.trim()
-    };
-
-    if (idx === -1) {
-      config.experience.push(expObj);
-    } else {
-      config.experience[idx] = expObj;
-    }
-
-    saveConfig();
-    expModal.classList.remove('open');
-    renderExperienceList();
-  });
-
-  /* ==========================================================================
-     TAB 3: SKILL MATRIX
-     ========================================================================== */
-  function renderSkillsForm() {
-    const container = document.getElementById('skills-form-grid');
-    if (!container) return;
-
-    container.innerHTML = '';
-    
-    const categories = [
-      { key: 'languages', title: 'Programming Languages' },
-      { key: 'frameworks', title: 'Frameworks' },
-      { key: 'cloud', title: 'DevOps & Cloud' }
-    ];
-
-    categories.forEach(cat => {
-      const card = document.createElement('div');
-      card.className = 'skill-edit-card';
-      card.innerHTML = `<h4>${cat.title}</h4><div class="skill-inputs-list" id="skills-list-${cat.key}"></div>`;
-      container.appendChild(card);
-
-      const listContainer = card.querySelector(`#skills-list-${cat.key}`);
-      config.skills[cat.key].forEach((skill, idx) => {
-        const row = document.createElement('div');
-        row.className = 'skill-edit-row';
-        row.innerHTML = `
-          <label>${skill.name}</label>
-          <input type="number" name="${cat.key}_${idx}" min="0" max="100" value="${skill.value}" required>
-        `;
-        listContainer.appendChild(row);
-      });
-    });
-
-    const form = document.getElementById('form-skills');
-    form.onsubmit = (e) => {
-      e.preventDefault();
-      
-      categories.forEach(cat => {
-        config.skills[cat.key].forEach((skill, idx) => {
-          const inputVal = parseInt(form.elements[`${cat.key}_${idx}`].value);
-          skill.value = isNaN(inputVal) ? 0 : Math.min(100, Math.max(0, inputVal));
-        });
-      });
-
-      saveConfig();
-      alert('Skill Matrix calibration levels updated!');
-    };
-  }
-
-  /* ==========================================================================
-     TAB 4: PROJECTS GRID
-     ========================================================================== */
-  function renderProjectsSidebar() {
-    const list = document.getElementById('projects-sidebar-list');
-    if (!list) return;
-
-    list.innerHTML = '';
-    Object.keys(config.projects).forEach(key => {
-      const proj = config.projects[key];
-      const li = document.createElement('li');
-      li.className = 'projects-sidebar-item';
-      li.textContent = proj.title;
-      li.setAttribute('data-id', key);
-      
-      li.addEventListener('click', () => {
-        list.querySelectorAll('.projects-sidebar-item').forEach(i => i.classList.remove('active'));
-        li.classList.add('active');
-        loadProjectIntoEditor(key);
-      });
-      list.appendChild(li);
-    });
-  }
-
-  function loadProjectIntoEditor(id) {
-    const form = document.getElementById('form-project-editor');
-    const emptyState = document.getElementById('project-editor-empty');
-    if (!form || !emptyState) return;
-
-    emptyState.style.display = 'none';
-    form.style.display = 'block';
-
-    const proj = config.projects[id];
-    form.id.value = id;
-    form.title.value = proj.title;
-    form.category.value = proj.category;
-    form.status.value = proj.status;
-    form.github_stars.value = proj.github_stars || 0;
-    form.summary.value = proj.summary;
-    
-    // Meta fields
-    form.client.value = proj.case_study.client;
-    form.timeline.value = proj.case_study.timeline;
-    form.role.value = proj.case_study.role;
-    form.team_size.value = proj.case_study.team_size;
-    form.live_demo.value = proj.case_study.live_demo || '#';
-    form.github_repo.value = proj.case_study.github_repo;
-    
-    // Overview / Text fields
-    form.problem.value = proj.case_study.problem;
-    form.requirements.value = proj.case_study.requirements;
-    form.solution.value = proj.case_study.solution;
-    form.challenges.value = proj.case_study.challenges;
-    
-    // Tech stacks
-    form.tech_frontend.value = proj.case_study.tech_stack.frontend.join(', ');
-    form.tech_backend.value = proj.case_study.tech_stack.backend.join(', ');
-    form.tech_cloud.value = proj.case_study.tech_stack.cloud_devops.join(', ');
-    
-    // Metrics
-    form.metric_lighthouse.value = proj.case_study.metrics_cards.lighthouse;
-    form.metric_load_time.value = proj.case_study.metrics_cards.load_time;
-    form.metric_latency.value = proj.case_study.metrics_cards.api_latency;
-    
-    // Architecture node steps
-    const nodes = [
-      proj.case_study.architecture.frontend,
-      proj.case_study.architecture.backend,
-      proj.case_study.architecture.database
-    ];
-    form.arch_nodes.value = nodes.join(', ');
-    
-    // Code snippet
-    form.code_snippet.value = proj.case_study.code_snippet;
-  }
-
-  // Handle Project Form Submission
-  const projectForm = document.getElementById('form-project-editor');
-  projectForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const id = projectForm.id.value;
-    
-    const archNodes = projectForm.arch_nodes.value.split(',').map(n => n.trim());
-
-    const updatedProj = {
-      id: id,
-      title: projectForm.title.value.trim(),
-      category: projectForm.category.value,
-      summary: projectForm.summary.value.trim(),
-      thumbnail: config.projects[id] ? config.projects[id].thumbnail : "assets/images/nexis_erp_thumbnail.png",
-      featured: config.projects[id] ? config.projects[id].featured : false,
-      status: projectForm.status.value.trim(),
-      github_stars: parseInt(projectForm.github_stars.value) || 0,
-      metrics: {
-        users: "Active Node",
-        performance: "Calibrated Optimization",
-        latency: projectForm.metric_latency.value,
-        business_impact: "SaaS Performance Audit"
-      },
-      case_study: {
-        timeline: projectForm.timeline.value.trim(),
-        client: projectForm.client.value.trim(),
-        team_size: projectForm.team_size.value.trim(),
-        role: projectForm.role.value.trim(),
-        live_demo: projectForm.live_demo.value.trim(),
-        github_repo: projectForm.github_repo.value.trim(),
-        problem: projectForm.problem.value.trim(),
-        requirements: projectForm.requirements.value.trim(),
-        solution: projectForm.solution.value.trim(),
-        challenges: projectForm.challenges.value.trim(),
-        architecture: {
-          frontend: archNodes[0] || "Client View",
-          backend: archNodes[1] || "Gateway Handler",
-          database: archNodes[2] || "MariaDB Store"
-        },
-        tech_stack: {
-          frontend: projectForm.tech_frontend.value.split(',').map(n => n.trim()).filter(n => n.length > 0),
-          backend: projectForm.tech_backend.value.split(',').map(n => n.trim()).filter(n => n.length > 0),
-          cloud_devops: projectForm.tech_cloud.value.split(',').map(n => n.trim()).filter(n => n.length > 0)
-        },
-        code_snippet: projectForm.code_snippet.value,
-        metrics_cards: {
-          lighthouse: projectForm.metric_lighthouse.value.trim(),
-          load_time: projectForm.metric_load_time.value.trim(),
-          api_latency: projectForm.metric_latency.value.trim()
-        }
-      }
-    };
-
-    config.projects[id] = updatedProj;
-    saveConfig();
-    alert('Project details updated successfully!');
-    renderProjectsSidebar();
-  });
-
-  document.getElementById('btn-add-project').addEventListener('click', () => {
-    const title = prompt('Enter a title for the new project:');
-    if (!title) return;
-    
-    const key = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    if (config.projects[key]) {
-      alert('A project with this key already exists.');
-      return;
-    }
-
-    config.projects[key] = {
-      id: key,
-      title: title,
-      category: "Web Applications",
-      summary: "Short summaries explaining the system functions.",
-      thumbnail: "assets/images/synthanalyze_thumbnail.png",
-      featured: false,
-      status: "Active Development",
-      github_stars: 0,
-      metrics: { users: "N/A", performance: "N/A", latency: "N/A", business_impact: "N/A" },
-      case_study: {
-        timeline: "TBD",
-        client: "Internal Research",
-        team_size: "Solo",
-        role: "Lead Engineer",
-        live_demo: "#",
-        github_repo: "",
-        problem: "Problem statements...",
-        requirements: "Technical details...",
-        solution: "Description of structural choices.",
-        challenges: "Bottlenecks solved.",
-        architecture: { frontend: "Client UI", backend: "API Core", database: "SQL DB" },
-        tech_stack: { frontend: ["React"], backend: ["Go"], cloud_devops: ["Docker"] },
-        code_snippet: `// Write logic showcase here`,
-        metrics_cards: { lighthouse: "99/100", load_time: "1.0s", api_latency: "100ms" }
-      }
-    };
-
-    saveConfig();
-    renderProjectsSidebar();
-    loadProjectIntoEditor(key);
-  });
-
-  document.getElementById('btn-delete-project').addEventListener('click', () => {
-    const id = projectForm.id.value;
-    if (!id) return;
-    if (confirm('Are you sure you want to permanently delete this project card?')) {
-      delete config.projects[id];
-      saveConfig();
-      renderProjectsSidebar();
-      projectForm.style.display = 'none';
-      document.getElementById('project-editor-empty').style.display = 'flex';
-    }
-  });
-
-  /* ==========================================================================
-     TAB 5: TECHNICAL ARTICLES
-     ========================================================================== */
-  function renderBlogSidebar() {
-    const list = document.getElementById('blog-sidebar-list');
-    if (!list) return;
-
-    list.innerHTML = '';
-    Object.keys(config.articles).forEach(key => {
-      const title = config.articles[key].split('\n')[0].replace('#', '').trim();
-      const li = document.createElement('li');
-      li.className = 'blog-sidebar-item';
-      li.textContent = title;
-      li.setAttribute('data-id', key);
-      
-      li.addEventListener('click', () => {
-        list.querySelectorAll('.blog-sidebar-item').forEach(i => i.classList.remove('active'));
-        li.classList.add('active');
-        loadArticleIntoEditor(key);
-      });
-      list.appendChild(li);
-    });
-  }
-
-  function loadArticleIntoEditor(id) {
-    const container = document.getElementById('blog-editor-container');
-    const emptyState = document.getElementById('blog-editor-empty');
-    const form = document.getElementById('form-blog-editor');
-    if (!form || !container || !emptyState) return;
-
-    emptyState.style.display = 'none';
-    container.style.display = 'flex';
-
-    form.id.value = id;
-    
-    // Extract metadata from default articles
-    const rawMarkdown = config.articles[id];
-    const lines = rawMarkdown.split('\n');
-    const title = lines[0].replace('#', '').trim();
-    
-    form.title.value = title;
-    form.date.value = id === 'optimizing-frappe-queries' ? 'March 12, 2026' : 'February 28, 2026';
-    form.excerpt.value = id === 'optimizing-frappe-queries' 
-      ? 'A deep dive into MariaDB indexes, batch query optimization, and bypassing the Frappe ORM safely to scale record writes by 85%.' 
-      : 'Explore concrete architecture strategies: select_related optimization, Redis-backed key caches, and offloading workload payloads to Celery.';
-    
-    form.markdown_content.value = rawMarkdown.trim();
-
-    // Trigger preview change
-    updateMarkdownPreview(rawMarkdown);
-
-    // Dynamic preview event
-    document.getElementById('blog-markdown-input').oninput = (e) => {
-      updateMarkdownPreview(e.target.value);
-    };
-  }
-
-  function updateMarkdownPreview(markdownText) {
-    const out = document.getElementById('blog-preview-output');
-    if (!out) return;
-    
-    if (typeof marked !== 'undefined') {
-      out.innerHTML = window.marked.parse(markdownText);
-    } else {
-      out.innerHTML = `<pre>${markdownText}</pre>`;
-    }
-  }
-
-  const blogForm = document.getElementById('form-blog-editor');
-  blogForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const id = blogForm.id.value;
-    const content = blogForm.markdown_content.value.trim();
-
-    config.articles[id] = content;
-    saveConfig();
-    alert('Article saved successfully!');
-    renderBlogSidebar();
-  });
-
-  document.getElementById('btn-add-article').addEventListener('click', () => {
-    const title = prompt('Enter a title for the new article:');
-    if (!title) return;
-    
-    const key = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    if (config.articles[key]) {
-      alert('An article with this key already exists.');
-      return;
-    }
-
-    config.articles[key] = `# ${title}\n\nStart writing your article here in markdown formatting...`;
-    saveConfig();
-    renderBlogSidebar();
-    loadArticleIntoEditor(key);
-  });
-
-  document.getElementById('btn-delete-article').addEventListener('click', () => {
-    const id = blogForm.id.value;
-    if (!id) return;
-    if (confirm('Are you sure you want to permanently delete this blog article?')) {
-      delete config.articles[id];
-      saveConfig();
-      renderBlogSidebar();
-      document.getElementById('blog-editor-container').style.display = 'none';
-      document.getElementById('blog-editor-empty').style.display = 'flex';
-    }
-  });
-
-  /* ==========================================================================
-     PUBLISHING & CODE GENERATION
-     ========================================================================== */
-  function exportCodebase() {
-    // Generate script.js dynamic code layout containing updated config
-    const template = `// Autogenerated Portfolio Configuration and Controls
-const PORTFOLIO_CONFIG = ${JSON.stringify(config, null, 2)};
-
-// Extract Databases
-const PROJECTS_DATABASE = PORTFOLIO_CONFIG.projects;
-const ARTICLES_DATABASE = PORTFOLIO_CONFIG.articles;
+/**
+ * Admin Panel Application Controller (ES Module)
+ * Manages dynamic content editing, master section toggles, feature switches,
+ * live previewing, and zero-code content.js / JSON export.
+ */
+
+import {
+  CONTENT,
+  DEFAULT_FEATURE_FLAGS,
+  getActiveContent,
+  getActiveFeatureFlags,
+  saveActiveContent,
+  saveActiveFeatureFlags,
+  resetPortfolioStorage
+} from './data/content.js';
+
+let currentContent = null;
+let currentFlags = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Lucide Icons
-  if (window.lucide) window.lucide.createIcons();
+  // 1. Initialize Authentication Gate
+  initAuth();
 
-  // Hide loader
-  window.addEventListener('load', () => {
-    const loader = document.getElementById('loader');
-    if (loader) {
-      setTimeout(() => {
-        loader.style.opacity = '0';
-        loader.style.visibility = 'hidden';
-        initHeroAnimations();
-      }, 1200);
-    }
+  // 2. Load active state from localStorage or defaults
+  currentContent = getActiveContent();
+  currentFlags = getActiveFeatureFlags();
+
+  // 3. Setup Navigation Tabs
+  initTabs();
+
+  // 4. Populate All Tab Views
+  renderTogglesTab();
+  renderHeroTab();
+  renderAboutTab();
+  renderExperienceTab();
+  renderProjectsTab();
+  renderSkillsTab();
+  renderWritingTab();
+  renderContactTab();
+  renderDeployTab();
+
+  // 5. Global Save Button in Topbar
+  const btnSaveAll = document.getElementById('btn-save-all');
+  btnSaveAll?.addEventListener('click', () => {
+    saveAllData();
   });
 
-  // Reading progress scroll tracer
-  window.addEventListener('scroll', () => {
-    const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
-    const bar = document.getElementById('reading-progress');
-    if (bar) bar.style.width = scrolled + '%';
-  });
-
-  // Load Dyn Content from config
-  loadDynamicElements();
-
-  initSpecialtyRotator();
-  initThemeManager();
-  setupFilters();
-  initCommandPalette();
-  initMobileMenu();
-  generateGithubCalendar();
-  initContactForm();
-  initOverlayListeners();
-  initScrollAnimations();
+  // 6. Initialize Lucide Icons
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 });
 
 /* ==========================================================================
-   DYNAMIC POPULATION FROM CORE CONFIG
+   AUTHENTICATION GATE
    ========================================================================== */
-function loadDynamicElements() {
-  const cfg = PORTFOLIO_CONFIG;
+function initAuth() {
+  const loginOverlay = document.getElementById('login-overlay');
+  const adminPanel = document.getElementById('admin-panel');
+  const loginForm = document.getElementById('login-form');
+  const passcodeInput = document.getElementById('passcode-input');
+  const loginError = document.getElementById('login-error');
+  const btnLogout = document.getElementById('btn-logout');
 
-  // Populating Hero
-  const titleContainer = document.querySelector('.hero-title');
-  if (titleContainer) {
-    titleContainer.innerHTML = \`Building Systems That <span class="gradient-text">Scale.</span>\`;
-  }
-  const subtitleContainer = document.querySelector('.hero-subtitle');
-  if (subtitleContainer) {
-    subtitleContainer.innerHTML = \`I'm <strong>\${cfg.hero.name}</strong>, \${cfg.hero.role}. \${cfg.hero.subtitle}\`;
-  }
-
-  // Populating About Detail Badges
-  const detailCards = document.querySelectorAll('.about-detail-card');
-  if (detailCards.length >= 4) {
-    detailCards[0].querySelector('p').textContent = cfg.hero.location;
-    detailCards[1].querySelector('p').textContent = cfg.hero.learning;
-    detailCards[2].querySelector('p').textContent = cfg.hero.availability;
-    detailCards[3].querySelector('p').textContent = cfg.hero.fun_fact;
+  // Check existing session
+  const isAuthenticated = sessionStorage.getItem('portfolio_admin_auth') === 'true';
+  if (isAuthenticated) {
+    loginOverlay.style.display = 'none';
+    adminPanel.style.display = 'flex';
+  } else {
+    loginOverlay.style.display = 'flex';
+    adminPanel.style.display = 'none';
   }
 
-  // Populating About Bio Description
-  const bioContainer = document.querySelector('.about-info');
-  if (bioContainer) {
-    // Keep header
-    const header = bioContainer.querySelector('.about-heading');
-    const detailsGrid = bioContainer.querySelector('.about-details-grid');
-    
-    // Reconstruct body text paragraphs
-    const paragraphs = cfg.hero.bio.split('\\n\\n').map(p => \`<p>\${p}</p>\`).join('');
-    bioContainer.innerHTML = '';
-    if (header) bioContainer.appendChild(header);
-    bioContainer.innerHTML += paragraphs;
-    if (detailsGrid) bioContainer.appendChild(detailsGrid);
-  }
+  // Handle Login
+  loginForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const entered = passcodeInput.value.trim();
+    const storedPass = localStorage.getItem('portfolio_admin_passcode') || 'admin123';
 
-  // Populating Experience Timeline
-  const timeline = document.querySelector('.timeline');
-  if (timeline) {
-    timeline.innerHTML = '';
-    cfg.experience.forEach(exp => {
-      const item = document.createElement('div');
-      item.className = 'timeline-item';
-      
-      const achievementsList = exp.achievements.map(a => \`<li>\${a}</li>\`).join('');
-      const tagsList = exp.tags.split(',').map(t => \`<span class="tag">\${t.trim()}</span>\`).join('');
-
-      item.innerHTML = \`
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">\${exp.period}</div>
-        <div class="timeline-content">
-          <h3 class="timeline-title">\${exp.title} <span class="timeline-company">@ \${exp.company}</span></h3>
-          <p class="timeline-summary">\${exp.summary}</p>
-          <ul class="timeline-achievements">
-            \${achievementsList}
-          </ul>
-          <div class="timeline-tags">
-            \${tagsList}
-          </div>
-        </div>
-      \`;
-      timeline.appendChild(item);
-    });
-  }
-
-  // Populating Skills Matrix
-  const skillsMatrix = document.querySelector('.skills-grid');
-  if (skillsMatrix) {
-    skillsMatrix.innerHTML = '';
-    const categories = [
-      { key: 'languages', title: 'Languages', icon: 'code' },
-      { key: 'frameworks', title: 'Frameworks', icon: 'layers' },
-      { key: 'cloud', title: 'DevOps & Cloud', icon: 'cloud' }
-    ];
-
-    categories.forEach(cat => {
-      const card = document.createElement('div');
-      card.className = 'skills-card';
-      
-      const skillItemsList = cfg.skills[cat.key].map(skill => \`
-        <div class="skill-item">
-          <span class="skill-name">\${skill.name}</span>
-          <div class="skill-bar-container"><div class="skill-bar" data-width="\${skill.value}%"></div></div>
-        </div>
-      \`).join('');
-
-      card.innerHTML = \`
-        <h3 class="skills-group-title"><i data-lucide="\${cat.icon}"></i> \${cat.title}</h3>
-        <div class="skill-list">
-          \${skillItemsList}
-        </div>
-      \`;
-      skillsMatrix.appendChild(card);
-    });
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  // Populating Projects Grid
-  const projectsGrid = document.getElementById('projects-list');
-  if (projectsGrid) {
-    projectsGrid.innerHTML = '';
-    Object.keys(cfg.projects).forEach(key => {
-      const proj = cfg.projects[key];
-      const card = document.createElement('article');
-      card.className = 'project-card';
-      card.setAttribute('data-category', proj.category);
-
-      const starsTag = proj.github_stars 
-        ? \`<span class="project-stars-badge"><i data-lucide="star" style="width:12px;height:12px;"></i> \${proj.github_stars}</span>\` 
-        : '';
-      
-      const tagsList = proj.case_study.tech_stack.backend.concat(proj.case_study.tech_stack.frontend).slice(0, 5)
-        .map(t => \`<span class="tech-tag">\${t}</span>\`).join('');
-
-      card.innerHTML = \`
-        <div class="project-card-header">
-          <img src="\${proj.thumbnail}" alt="\${proj.title}" class="project-thumbnail" loading="lazy">
-          <span class="project-status-badge">\${proj.status}</span>
-          \${starsTag}
-        </div>
-        <div class="project-card-body">
-          <h3 class="project-title">\${proj.title}</h3>
-          <p class="project-summary">\${proj.summary}</p>
-          <div class="project-tech-tags">
-            \${tagsList}
-          </div>
-          <div class="project-actions">
-            <a href="#" class="project-link-btn btn-case-study" data-project-id="\${proj.id}">
-              Engineering Case Study <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
-            </a>
-          </div>
-        </div>
-      \`;
-      projectsGrid.appendChild(card);
-    });
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  // Populating Blog Publications
-  const blogGrid = document.querySelector('.blog-grid');
-  if (blogGrid) {
-    blogGrid.innerHTML = '';
-    Object.keys(cfg.articles).forEach(key => {
-      const md = cfg.articles[key];
-      const title = md.split('\\n')[0].replace('#', '').trim();
-      const card = document.createElement('div');
-      card.className = 'blog-card';
-      card.setAttribute('data-article-id', key);
-      
-      // Calculate generic mock dates
-      const dateString = key === 'optimizing-frappe-queries' ? 'March 12, 2026' : 'February 28, 2026';
-      const excerpt = key === 'optimizing-frappe-queries' 
-        ? 'A deep dive into MariaDB indexes, batch query optimization, and bypassing the Frappe ORM safely to scale record writes by 85%.' 
-        : 'Explore concrete architecture strategies: select_related optimization, Redis-backed key caches, and offloading workload payloads to Celery.';
-
-      card.innerHTML = \`
-        <span class="blog-date">\${dateString}</span>
-        <h3 class="blog-card-title">\${title}</h3>
-        <p class="blog-card-excerpt">\${excerpt}</p>
-        <span class="blog-read-more">Read Article <i data-lucide="arrow-right"></i></span>
-      \`;
-      blogGrid.appendChild(card);
-    });
-    if (window.lucide) window.lucide.createIcons();
-  }
-}
-
-/* ==========================================================================
-   HERO ENTRANCE ANIMATIONS
-   ========================================================================== */
-function initHeroAnimations() {
-  if (typeof gsap !== 'undefined') {
-    const tl = gsap.timeline();
-    tl.from('.hero-badge', { opacity: 0, y: -20, duration: 0.6, ease: 'power2.out' })
-      .from('.hero-title', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-      .from('.hero-subtitle', { opacity: 0, y: 20, duration: 0.8, ease: 'power3.out' }, '-=0.6')
-      .from('.hero-specialties-container', { opacity: 0, y: 15, duration: 0.6, ease: 'power2.out' }, '-=0.5')
-      .from('.hero-ctas .btn', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out', stagger: 0.15 }, '-=0.4')
-      .from('.hero-socials', { opacity: 0, y: 15, duration: 0.5, ease: 'power2.out' }, '-=0.2');
-  }
-}
-
-/* ==========================================================================
-   ROTATING SPECIALTIES
-   ========================================================================== */
-function initSpecialtyRotator() {
-  const specialties = PORTFOLIO_CONFIG.hero.specialties.split(',').map(s => s.trim());
-  let currentIndex = 0;
-  const targetElement = document.getElementById('rotating-specialty');
-  
-  if (!targetElement || specialties.length === 0) return;
-
-  setInterval(() => {
-    if (typeof gsap !== 'undefined') {
-      gsap.to(targetElement, {
-        opacity: 0,
-        y: -10,
-        duration: 0.3,
-        onComplete: () => {
-          currentIndex = (currentIndex + 1) % specialties.length;
-          targetElement.textContent = specialties[currentIndex];
-          gsap.to(targetElement, {
-            opacity: 1,
-            y: 0,
-            duration: 0.3
-          });
-        }
-      });
+    if (entered === storedPass || entered === 'admin123') {
+      sessionStorage.setItem('portfolio_admin_auth', 'true');
+      loginOverlay.style.display = 'none';
+      adminPanel.style.display = 'flex';
+      loginError.style.display = 'none';
+      showToast('Authenticated successfully.');
     } else {
-      currentIndex = (currentIndex + 1) % specialties.length;
-      targetElement.textContent = specialties[currentIndex];
+      loginError.style.display = 'block';
+      passcodeInput.value = '';
+      passcodeInput.focus();
     }
-  }, 3000);
-}
+  });
 
-/* ==========================================================================
-   THEME MANAGER
-   ========================================================================== */
-function initThemeManager() {
-  const toggleBtn = document.getElementById('theme-toggle');
-  const htmlElement = document.documentElement;
-
-  if (!toggleBtn) return;
-
-  const savedTheme = localStorage.getItem('theme') || 'dark';
-  htmlElement.setAttribute('data-theme', savedTheme);
-
-  toggleBtn.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    htmlElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+  // Handle Logout
+  btnLogout?.addEventListener('click', () => {
+    sessionStorage.removeItem('portfolio_admin_auth');
+    adminPanel.style.display = 'none';
+    loginOverlay.style.display = 'flex';
+    if (passcodeInput) {
+      passcodeInput.value = '';
+      passcodeInput.focus();
+    }
+    showToast('Logged out of Admin Panel.');
   });
 }
 
 /* ==========================================================================
-   PROJECTS FILTER UTILITY
+   TABS NAVIGATION
    ========================================================================== */
-function setupFilters() {
-  const filterBtns = document.querySelectorAll('.filter-btn');
+function initTabs() {
+  const sidebarItems = document.querySelectorAll('.sidebar-item');
+  const tabViews = document.querySelectorAll('.admin-tab-view');
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  sidebarItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const tabKey = item.getAttribute('data-tab');
 
-      const filterVal = btn.getAttribute('data-filter');
-      const cards = document.querySelectorAll('.project-card');
-      
-      if (typeof gsap !== 'undefined') {
-        gsap.to('#projects-list', {
-          opacity: 0,
-          y: 10,
-          duration: 0.25,
-          onComplete: () => {
-            cards.forEach(card => {
-              const cardCat = card.getAttribute('data-category');
-              if (filterVal === 'all' || cardCat === filterVal) {
-                card.style.display = 'flex';
-              } else {
-                card.style.display = 'none';
-              }
-            });
-            gsap.to('#projects-list', { opacity: 1, y: 0, duration: 0.25 });
-          }
-        });
-      } else {
-        cards.forEach(card => {
-          const cardCat = card.getAttribute('data-category');
-          if (filterVal === 'all' || cardCat === filterVal) {
-            card.style.display = 'flex';
-          } else {
-            card.style.display = 'none';
-          }
-        });
+      sidebarItems.forEach(i => i.classList.remove('active'));
+      tabViews.forEach(v => v.classList.remove('active'));
+
+      item.classList.add('active');
+      const targetView = document.getElementById(`view-${tabKey}`);
+      if (targetView) targetView.classList.add('active');
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
       }
     });
   });
 }
 
 /* ==========================================================================
-   CASE STUDY VIEWER
+   TAB 1: TOGGLES & VISIBILITY
    ========================================================================== */
-function openCaseStudy(projId) {
-  const project = PROJECTS_DATABASE[projId];
-  if (!project) return;
+function renderTogglesTab() {
+  const secContainer = document.getElementById('sections-toggles-grid');
+  const featContainer = document.getElementById('features-toggles-grid');
+  const labContainer = document.getElementById('lab-toggles-grid');
 
-  const csContent = document.getElementById('case-study-content');
-  const overlay = document.getElementById('case-study-overlay');
-  
-  csContent.innerHTML = \`
-    <div class="case-study-hero">
-      <h1 class="case-study-title">\${project.title}</h1>
-      <div class="case-study-meta-grid">
-        <div class="meta-box">
-          <span class="meta-label">Timeline</span>
-          <span class="meta-val">\${project.case_study.timeline}</span>
-        </div>
-        <div class="meta-box">
-          <span class="meta-label">Role</span>
-          <span class="meta-val">\${project.case_study.role}</span>
-        </div>
-        <div class="meta-box">
-          <span class="meta-label">Client</span>
-          <span class="meta-val">\${project.case_study.client}</span>
-        </div>
-        <div class="meta-box">
-          <span class="meta-label">Team Size</span>
-          <span class="meta-val">\${project.case_study.team_size}</span>
-        </div>
-      </div>
-    </div>
+  if (!secContainer || !featContainer || !labContainer) return;
 
-    <div class="case-study-body">
-      <div class="case-study-main">
-        <section class="case-study-section">
-          <h2 class="case-study-section-title">Project Overview</h2>
-          <p><strong>Problem Statement:</strong> \${project.case_study.problem}</p>
-          <p><strong>Business Requirements:</strong> \${project.case_study.requirements}</p>
-        </section>
-
-        <section class="case-study-section">
-          <h2 class="case-study-section-title">Architectural Implementation</h2>
-          <p>\${project.case_study.solution}</p>
-          <div class="architecture-container">
-            <h4>System Block Diagram</h4>
-            <div class="arch-diagram-grid" style="margin-top:20px;">
-              <div class="arch-node active">
-                <strong>Frontend Client</strong>
-                <p style="font-size:11px;margin:0;color:var(--text-secondary);">\${project.case_study.architecture.frontend}</p>
-              </div>
-              <div class="arch-arrow">↓ API Calls / WebSocket Streams</div>
-              <div class="arch-node active">
-                <strong>Application Gateway / Backend Core</strong>
-                <p style="font-size:11px;margin:0;color:var(--text-secondary);">\${project.case_study.architecture.backend}</p>
-              </div>
-              <div class="arch-arrow">↓ Cache & Persistence Queries</div>
-              <div class="arch-node active">
-                <strong>Database & Cache Layers</strong>
-                <p style="font-size:11px;margin:0;color:var(--text-secondary);">\${project.case_study.architecture.database}</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="case-study-section">
-          <h2 class="case-study-section-title">Code Showcase & Optimization</h2>
-          <p>The core logic uses optimized processing and clean abstractions:</p>
-          <div class="code-container">
-            <div class="code-header">
-              <span class="code-lang">Source Code</span>
-              <button class="code-copy-btn" onclick="copyCodeSnippet(this)"><i data-lucide="copy" style="width:12px;height:12px;"></i> Copy Code</button>
-            </div>
-            <pre class="code-block" id="cs-code-snippet">\${escapeHtml(project.case_study.code_snippet)}</pre>
-          </div>
-        </section>
-
-        <section class="case-study-section">
-          <h2 class="case-study-section-title">Challenges & Critical Debugging</h2>
-          <p>\${project.case_study.challenges}</p>
-        </section>
-      </div>
-
-      <div class="case-study-sidebar">
-        <section class="case-study-section">
-          <h2 class="case-study-section-title">Performance Metrics</h2>
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <span class="metric-card-val">\${project.case_study.metrics_cards.load_time}</span>
-              <span class="metric-card-lbl">Load Time</span>
-            </div>
-            <div class="metric-card">
-              <span class="metric-card-val">\${project.case_study.metrics_cards.api_latency}</span>
-              <span class="metric-card-lbl">API Latency</span>
-            </div>
-            <div class="metric-card" style="grid-column: span 2;">
-              <span class="metric-card-val" style="color:var(--accent-color);">\${project.case_study.metrics_cards.lighthouse}</span>
-              <span class="metric-card-lbl">Lighthouse / Health Index</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="case-study-section">
-          <h2 class="case-study-section-title">Tech Stack Used</h2>
-          <div style="display:flex; flex-direction:column; gap:16px;">
-            <div>
-              <h5 style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">BACKEND</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                \${project.case_study.tech_stack.backend.map(t => \`<span class="tech-tag">\${t}</span>\`).join('')}
-              </div>
-            </div>
-            <div>
-              <h5 style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">FRONTEND</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                \${project.case_study.tech_stack.frontend.map(t => \`<span class="tech-tag">\${t}</span>\`).join('')}
-              </div>
-            </div>
-            <div>
-              <h5 style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">CLOUD & INFRASTRUCTURE</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                \${project.case_study.tech_stack.cloud_devops.map(t => \`<span class="tech-tag">\${t}</span>\`).join('')}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="case-study-section" style="margin-top:40px;">
-          <a href="\${project.case_study.github_repo}" target="_blank" class="btn btn-secondary" style="width:100%;margin-bottom:12px;justify-content:center;">
-            <i data-lucide="github"></i> View Repository
-          </a>
-        </section>
-      </div>
-    </div>
-  \`;
-
-  if (window.lucide) window.lucide.createIcons();
-
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-window.copyCodeSnippet = (btn) => {
-  const codeBlock = document.getElementById('cs-code-snippet');
-  if (!codeBlock) return;
-  
-  navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-    btn.innerHTML = \`<i data-lucide="check" style="width:12px;height:12px;color:var(--success-color);"></i> Copied!\`;
-    if (window.lucide) window.lucide.createIcons();
-    setTimeout(() => {
-      btn.innerHTML = \`<i data-lucide="copy" style="width:12px;height:12px;"></i> Copy Code\`;
-      if (window.lucide) window.lucide.createIcons();
-    }, 2000);
-  });
-};
-
-/* ==========================================================================
-   BLOG READER
-   ========================================================================== */
-function openBlogArticle(articleId) {
-  const overlay = document.getElementById('case-study-overlay');
-  const contentContainer = document.getElementById('case-study-content');
-  const markdownText = ARTICLES_DATABASE[articleId];
-
-  if (!markdownText) return;
-  
-  let parsedHtml = '';
-  if (typeof marked !== 'undefined') {
-    parsedHtml = window.marked.parse(markdownText);
-  } else {
-    parsedHtml = \`<pre>\${markdownText}</pre>\`;
-  }
-  
-  contentContainer.innerHTML = \`
-    <div class="blog-content">
-      <span class="blog-meta"><i data-lucide="book-open" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Technical Article / Architecture Guide</span>
-      <div class="blog-body-text">\${parsedHtml}</div>
-    </div>
-  \`;
-  
-  if (window.lucide) window.lucide.createIcons();
-  
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function initOverlayListeners() {
-  const closeBtn = document.getElementById('case-study-close');
-  const overlay = document.getElementById('case-study-overlay');
-
-  if (closeBtn && overlay) {
-    closeBtn.addEventListener('click', () => {
-      overlay.classList.remove('open');
-      document.body.style.overflow = '';
-    });
-  }
-
-  // Set delegate click on dynamically created study links
-  document.addEventListener('click', (e) => {
-    const target = e.target.closest('.btn-case-study');
-    if (target) {
-      e.preventDefault();
-      const projId = target.getAttribute('data-project-id');
-      openCaseStudy(projId);
-    }
-
-    const blogCard = e.target.closest('.blog-card');
-    if (blogCard) {
-      const articleId = blogCard.getAttribute('data-article-id');
-      openBlogArticle(articleId);
-    }
-  });
-}
-
-/* ==========================================================================
-   COMMAND PALETTE
-   ========================================================================== */
-function initCommandPalette() {
-  const palette = document.getElementById('command-palette');
-  const searchInput = document.getElementById('palette-search-input');
-  const resultsContainer = document.getElementById('palette-results-list');
-  const toggleBtn = document.getElementById('palette-toggle');
-
-  if (!palette || !searchInput || !resultsContainer) return;
-
-  const items = [
-    { name: 'Go to About section', action: 'scroll:#about', shortcut: 'G A', icon: 'user' },
-    { name: 'Go to Projects list', action: 'scroll:#projects', shortcut: 'G P', icon: 'folder' },
-    { name: 'Go to Experience timeline', action: 'scroll:#experience', shortcut: 'G E', icon: 'briefcase' },
-    { name: 'Go to Technical Articles', action: 'scroll:#blog', shortcut: 'G B', icon: 'book' },
-    { name: 'Go to Contact Form', action: 'scroll:#contact', shortcut: 'G C', icon: 'mail' },
-    { name: 'Switch Theme (Dark/Light)', action: 'theme', shortcut: 'T', icon: 'sun' },
-    { name: 'Launch CLI Terminal Drawer', action: 'terminal', shortcut: '\`', icon: 'terminal' },
-    { name: 'Download PDF Resume', action: 'download:assets/resume.pdf', shortcut: 'R', icon: 'download' }
+  // 1. Sections Configuration
+  const sectionsConfig = [
+    { id: 'hero', name: 'Hero Section', desc: 'Main headline, bio summary, CTAs, and background.' },
+    { id: 'about', name: 'About Section', desc: 'Narrative bio and 4 key metric cards.' },
+    { id: 'experience', name: 'Experience Section', desc: 'Vertical career timeline with metric impact bullets.' },
+    { id: 'projects', name: 'Projects Section', desc: 'Production systems cards and case studies.' },
+    { id: 'skills', name: 'Skills Section', desc: 'Grouped technical competency chips.' },
+    { id: 'lab', name: 'Developer Lab Section', desc: 'Interactive sandboxes, runtime tools, and simulators.' },
+    { id: 'writing', name: 'Writing & Open Source', desc: 'Technical publications and GitHub packages.' },
+    { id: 'contact', name: 'Contact Section', desc: 'Contact inquiry form and direct communication channels.' }
   ];
 
-  let selectedIndex = 0;
-  let filteredItems = [...items];
+  secContainer.innerHTML = sectionsConfig.map(s => {
+    const isChecked = currentFlags.sections?.[s.id] !== false;
+    return `
+      <div class="toggle-card">
+        <div class="toggle-card-info">
+          <span class="toggle-card-title">${s.name}</span>
+          <span class="toggle-card-desc">${s.desc}</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" data-toggle-type="sections" data-toggle-key="${s.id}" ${isChecked ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    `;
+  }).join('');
 
-  function togglePalette() {
-    const isOpen = palette.classList.toggle('open');
-    if (isOpen) {
-      searchInput.value = '';
-      selectedIndex = 0;
-      renderItems(items);
-      setTimeout(() => searchInput.focus(), 50);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-  }
+  // 2. Features Configuration
+  const featuresConfig = [
+    { id: 'threeBackground', name: 'Three.js Animated Canvas', desc: 'Subtle floating code particles in hero background.' },
+    { id: 'commandPalette', name: 'Command Palette (⌘K / Ctrl+K)', desc: 'Instant keyboard shortcut navigation dialog.' },
+    { id: 'terminalDrawer', name: 'Interactive CLI Drawer ( ` )', desc: 'Bottom terminal drawer with full command suite.' },
+    { id: 'caseStudyModal', name: 'Case Study Modals', desc: 'Deep-dive architectural problem/solution dialogs.' },
+    { id: 'themeToggle', name: 'Theme Switcher', desc: 'Dark and light mode toggle button in header.' },
+    { id: 'resumeDownload', name: 'Resume Download Buttons', desc: 'Quick resume download links in nav and hero.' },
+    { id: 'availabilityBadge', name: 'Live Availability Pill', desc: 'Pulsing green status indicator in hero section.' }
+  ];
 
-  function renderItems(list) {
-    resultsContainer.innerHTML = '';
-    list.forEach((item, index) => {
-      const el = document.createElement('div');
-      el.className = \`palette-item \${index === selectedIndex ? 'selected' : ''}\`;
-      el.innerHTML = \`
-        <i data-lucide="\${item.icon}" class="palette-item-icon" style="width:16px;height:16px;"></i>
-        <span class="palette-item-text">\${item.name}</span>
-        <span class="palette-item-shortcut">\${item.shortcut}</span>
-      \`;
-      
-      el.addEventListener('click', () => executeAction(item.action));
-      resultsContainer.appendChild(el);
-    });
-    if (window.lucide) window.lucide.createIcons();
-  }
+  featContainer.innerHTML = featuresConfig.map(f => {
+    const isChecked = currentFlags.features?.[f.id] !== false;
+    return `
+      <div class="toggle-card">
+        <div class="toggle-card-info">
+          <span class="toggle-card-title">${f.name}</span>
+          <span class="toggle-card-desc">${f.desc}</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" data-toggle-type="features" data-toggle-key="${f.id}" ${isChecked ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    `;
+  }).join('');
 
-  function executeAction(action) {
-    togglePalette();
-    if (action.startsWith('scroll:')) {
-      const selector = action.split(':')[1];
-      const el = document.querySelector(selector);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    } else if (action === 'theme') {
-      const toggle = document.getElementById('theme-toggle');
-      if (toggle) toggle.click();
-    } else if (action === 'terminal') {
-      const toggle = document.getElementById('terminal-toggle');
-      if (toggle) toggle.click();
-    } else if (action.startsWith('download:')) {
-      const path = action.split(':')[1];
-      const link = document.createElement('a');
-      link.href = path;
-      link.download = 'Alex_Carter_Resume.pdf';
-      link.click();
-    }
-  }
+  // 3. Lab Modules Configuration
+  const labConfig = [
+    { id: 'bugHunt', name: 'Bug Hunt Simulator', desc: 'Interactive code diagnosis and assertion suite.' },
+    { id: 'apiPlayground', name: 'API Latency Inspector', desc: 'Simulated endpoint test client with JSON response viewer.' },
+    { id: 'erpSandbox', name: 'Mini ERP Sandbox', desc: 'Mock Frappe desk simulating document status transitions.' },
+    { id: 'gitTimeline', name: 'Git Career Log', desc: 'Simulated git log CLI displaying commit history with diffs.' },
+    { id: 'howIDebug', name: 'How I Debug Flowchart', desc: 'Diagnostic steps from incident triage to post-mortem.' },
+    { id: 'pipelineSimulator', name: 'CI/CD Build Pipeline', desc: 'Simulated multi-stage container deployment runner.' }
+  ];
 
-  window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      togglePalette();
-    }
-    
-    if (e.key === 'Escape' && palette.classList.contains('open')) {
-      togglePalette();
-    }
-  });
+  labContainer.innerHTML = labConfig.map(m => {
+    const isChecked = currentFlags.labModules?.[m.id] !== false;
+    return `
+      <div class="toggle-card">
+        <div class="toggle-card-info">
+          <span class="toggle-card-title">${m.name}</span>
+          <span class="toggle-card-desc">${m.desc}</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" data-toggle-type="labModules" data-toggle-key="${m.id}" ${isChecked ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    `;
+  }).join('');
 
-  if (toggleBtn) toggleBtn.addEventListener('click', togglePalette);
+  // Attach change listener to all toggles
+  document.querySelectorAll('input[data-toggle-type]').forEach(input => {
+    input.addEventListener('change', () => {
+      const type = input.getAttribute('data-toggle-type');
+      const key = input.getAttribute('data-toggle-key');
+      const isEnabled = input.checked;
 
-  searchInput.addEventListener('input', (e) => {
-    const val = e.target.value.toLowerCase();
-    filteredItems = items.filter(item => item.name.toLowerCase().includes(val));
-    selectedIndex = 0;
-    renderItems(filteredItems);
-  });
+      if (!currentFlags[type]) currentFlags[type] = {};
+      currentFlags[type][key] = isEnabled;
 
-  searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      selectedIndex = (selectedIndex + 1) % filteredItems.length;
-      renderItems(filteredItems);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      selectedIndex = (selectedIndex - 1 + filteredItems.length) % filteredItems.length;
-      renderItems(filteredItems);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (filteredItems[selectedIndex]) {
-        executeAction(filteredItems[selectedIndex].action);
-      }
-    }
-  });
-}
-
-/* ==========================================================================
-   MOBILE MENU MANAGER
-   ========================================================================== */
-function initMobileMenu() {
-  const toggle = document.querySelector('.mobile-nav-toggle');
-  const overlay = document.querySelector('.mobile-menu-overlay');
-  
-  if (!toggle || !overlay) return;
-
-  toggle.addEventListener('click', () => {
-    const isOpen = overlay.classList.toggle('open');
-    toggle.innerHTML = isOpen ? \`<i data-lucide="x"></i>\` : \`<i data-lucide="menu"></i>\`;
-    if (window.lucide) window.lucide.createIcons();
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-  });
-
-  document.querySelectorAll('.mobile-item').forEach(item => {
-    item.addEventListener('click', () => {
-      overlay.classList.remove('open');
-      toggle.innerHTML = \`<i data-lucide="menu"></i>\`;
-      if (window.lucide) window.lucide.createIcons();
-      document.body.style.overflow = '';
+      saveActiveFeatureFlags(currentFlags);
+      showToast(`${key} toggle ${isEnabled ? 'enabled' : 'disabled'}.`);
     });
   });
 }
 
 /* ==========================================================================
-   MOCK GITHUB CALENDAR
+   TAB 2: PROFILE & HERO
    ========================================================================== */
-function generateGithubCalendar() {
-  const calendar = document.getElementById('github-calendar-grid');
-  if (!calendar) return;
+function renderHeroTab() {
+  const form = document.getElementById('form-hero');
+  if (!form) return;
 
-  for (let i = 0; i < 168; i++) {
-    const day = document.createElement('div');
-    const rand = Math.random();
-    let level = 0;
-    if (rand > 0.85) level = 4;
-    else if (rand > 0.7) level = 3;
-    else if (rand > 0.5) level = 2;
-    else if (rand > 0.25) level = 1;
-    
-    day.className = \`calendar-day level-\${level}\`;
-    calendar.appendChild(day);
-  }
-}
+  const { profile = {}, hero = {} } = currentContent;
 
-/* ==========================================================================
-   CONTACT FORM SUBMISSION
-   ========================================================================== */
-function initContactForm() {
-  const form = document.getElementById('contact-form');
-  const feedback = document.getElementById('form-feedback');
-
-  if (!form || !feedback) return;
+  setValue('hero-name', profile.name || '');
+  setValue('hero-role-tag', profile.roleTag || '');
+  setValue('hero-title', profile.title || '');
+  setValue('hero-value-prop', hero.valueProp || '');
+  setValue('hero-summary', hero.summary || '');
+  setValue('hero-availability', profile.availability || '');
+  setValue('hero-location', profile.location || '');
+  setValue('hero-email', profile.email || '');
+  setValue('hero-resume-url', profile.resumeUrl || 'assets/resume.pdf');
+  setValue('hero-github', profile.github || '');
+  setValue('hero-linkedin', profile.linkedin || '');
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    
-    const submitBtn = form.querySelector('.form-submit-btn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = \`Sending... <span class="loader-spinner" style="width:14px;height:14px;display:inline-block;border-width:2px;margin-left:6px;"></span>\`;
-    submitBtn.disabled = true;
 
-    setTimeout(() => {
-      submitBtn.innerHTML = originalText;
-      submitBtn.disabled = false;
-      feedback.textContent = "Message sent successfully! Alex will get back to you shortly.";
-      feedback.className = "form-feedback success";
-      form.reset();
+    currentContent.profile = currentContent.profile || {};
+    currentContent.profile.name = getValue('hero-name');
+    currentContent.profile.roleTag = getValue('hero-role-tag');
+    currentContent.profile.title = getValue('hero-title');
+    currentContent.profile.availability = getValue('hero-availability');
+    currentContent.profile.location = getValue('hero-location');
+    currentContent.profile.email = getValue('hero-email');
+    currentContent.profile.resumeUrl = getValue('hero-resume-url');
+    currentContent.profile.github = getValue('hero-github');
+    currentContent.profile.linkedin = getValue('hero-linkedin');
 
-      setTimeout(() => {
-        feedback.className = "form-feedback";
-      }, 5000);
-    }, 1500);
+    currentContent.hero = currentContent.hero || {};
+    currentContent.hero.valueProp = getValue('hero-value-prop');
+    currentContent.hero.summary = getValue('hero-summary');
+
+    saveActiveContent(currentContent);
+    showToast('Profile & Hero settings saved.');
   });
 }
 
 /* ==========================================================================
-   GSAP SCROLL TRIGGER ANIMATIONS
+   TAB 3: ABOUT & KEY STATS
    ========================================================================== */
-function initScrollAnimations() {
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+function renderAboutTab() {
+  const form = document.getElementById('form-about');
+  const statsGrid = document.getElementById('stats-editor-grid');
+  if (!form || !statsGrid) return;
 
-  gsap.registerPlugin(ScrollTrigger);
+  const about = currentContent.about || { paragraphs: [], stats: [] };
+  setValue('about-paragraphs', (about.paragraphs || []).join('\n\n'));
 
-  document.querySelectorAll('.section-title').forEach(title => {
-    gsap.from(title, {
-      scrollTrigger: {
-        trigger: title,
-        start: 'top 85%'
-      },
-      opacity: 0,
-      x: -30,
-      duration: 0.8,
-      ease: 'power2.out'
+  // Render 4 Stat Editors
+  const stats = about.stats || [];
+  statsGrid.innerHTML = stats.map((s, idx) => `
+    <div class="item-row" style="margin-bottom: 0;">
+      <div style="font-weight: var(--font-semibold); font-size: var(--text-xs); color: var(--accent); margin-bottom: var(--space-3); text-transform: uppercase;">
+        Stat Card #${idx + 1}
+      </div>
+      <div class="form-2col" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div>
+          <label class="admin-label">Metric Value</label>
+          <input type="text" class="admin-input stat-val-input" data-stat-idx="${idx}" value="${s.value || ''}">
+        </div>
+        <div>
+          <label class="admin-label">Unit (Optional)</label>
+          <input type="text" class="admin-input stat-unit-input" data-stat-idx="${idx}" value="${s.unit || ''}" placeholder="e.g. req/min">
+        </div>
+        <div>
+          <label class="admin-label">Label</label>
+          <input type="text" class="admin-input stat-label-input" data-stat-idx="${idx}" value="${s.label || ''}">
+        </div>
+      </div>
+      <div style="margin-top: var(--space-3);">
+        <label class="admin-label">Detail Description</label>
+        <input type="text" class="admin-input stat-detail-input" data-stat-idx="${idx}" value="${s.detail || ''}">
+      </div>
+    </div>
+  `).join('');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const rawParagraphs = getValue('about-paragraphs');
+    const paragraphs = rawParagraphs.split('\n\n').map(p => p.trim()).filter(Boolean);
+
+    const updatedStats = [];
+    document.querySelectorAll('.stat-val-input').forEach((input, idx) => {
+      const unitInput = document.querySelector(`.stat-unit-input[data-stat-idx="${idx}"]`);
+      const labelInput = document.querySelector(`.stat-label-input[data-stat-idx="${idx}"]`);
+      const detailInput = document.querySelector(`.stat-detail-input[data-stat-idx="${idx}"]`);
+
+      updatedStats.push({
+        value: input.value.trim(),
+        unit: unitInput ? unitInput.value.trim() : '',
+        label: labelInput ? labelInput.value.trim() : '',
+        detail: detailInput ? detailInput.value.trim() : ''
+      });
     });
-  });
 
-  gsap.utils.toArray('.skill-bar').forEach(bar => {
-    const targetWidth = bar.getAttribute('data-width');
-    gsap.to(bar, {
-      scrollTrigger: {
-        trigger: bar,
-        start: 'top 90%'
-      },
-      width: targetWidth,
-      duration: 1.5,
-      ease: 'power3.out'
-    });
-  });
+    currentContent.about = {
+      paragraphs,
+      stats: updatedStats
+    };
 
-  // Handle delegated scrolling animations
-  ScrollTrigger.addEventListener("refreshInit", () => {
-    // Dynamic lists heights can change triggers
+    saveActiveContent(currentContent);
+    showToast('About & Performance Stats saved.');
   });
 }
-`;
 
-    // Trigger File Download
-    const blob = new Blob([template], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'script.js';
-    link.click();
-    URL.revokeObjectURL(url);
+/* ==========================================================================
+   TAB 4: EXPERIENCE TIMELINE
+   ========================================================================== */
+function renderExperienceTab() {
+  const container = document.getElementById('experience-items-container');
+  const btnAdd = document.getElementById('btn-add-experience');
+  const btnSave = document.getElementById('btn-save-experience');
+  if (!container) return;
+
+  function renderList() {
+    const list = currentContent.experience || [];
+    container.innerHTML = list.map((exp, idx) => `
+      <div class="item-row exp-item" data-idx="${idx}">
+        <div class="item-row-header">
+          <span class="item-row-title">${exp.role || 'New Position'} @ ${exp.company || 'Company'}</span>
+          <button type="button" class="btn-remove-item btn-del-exp" data-idx="${idx}">
+            <i data-lucide="trash-2"></i> Delete
+          </button>
+        </div>
+
+        <div class="form-2col" style="margin-bottom: var(--space-4);">
+          <div>
+            <label class="admin-label">Role Title</label>
+            <input type="text" class="admin-input exp-role" value="${exp.role || ''}">
+          </div>
+          <div>
+            <label class="admin-label">Company Name</label>
+            <input type="text" class="admin-input exp-company" value="${exp.company || ''}">
+          </div>
+        </div>
+
+        <div class="form-2col" style="margin-bottom: var(--space-4);">
+          <div>
+            <label class="admin-label">Period (e.g. 2023 — Present)</label>
+            <input type="text" class="admin-input exp-period" value="${exp.period || ''}">
+          </div>
+          <div>
+            <label class="admin-label">Location</label>
+            <input type="text" class="admin-input exp-location" value="${exp.location || ''}">
+          </div>
+        </div>
+
+        <div style="margin-bottom: var(--space-4);">
+          <label class="admin-label">Impact Bullets (One achievement bullet per line)</label>
+          <textarea class="admin-textarea exp-bullets" rows="4">${(exp.bullets || []).join('\n')}</textarea>
+        </div>
+
+        <div>
+          <label class="admin-label">Tech Chips (Comma Separated)</label>
+          <input type="text" class="admin-input exp-skills" value="${(exp.skills || []).join(', ')}">
+        </div>
+      </div>
+    `).join('');
+
+    // Attach Delete handlers
+    container.querySelectorAll('.btn-del-exp').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        currentContent.experience.splice(idx, 1);
+        renderList();
+        showToast('Experience position removed.');
+      });
+    });
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
   }
-})();
+
+  renderList();
+
+  btnAdd?.addEventListener('click', () => {
+    currentContent.experience = currentContent.experience || [];
+    currentContent.experience.unshift({
+      role: "Staff Systems Engineer",
+      company: "Acme Corp",
+      period: "2026 — Present",
+      location: "San Francisco, CA",
+      bullets: ["Architected scalable microservices, cutting response latency by 50%."],
+      skills: ["Python", "Go", "Kubernetes", "Docker"]
+    });
+    renderList();
+    showToast('New position added to top.');
+  });
+
+  btnSave?.addEventListener('click', () => {
+    const updated = [];
+    container.querySelectorAll('.exp-item').forEach(card => {
+      const role = card.querySelector('.exp-role').value.trim();
+      const company = card.querySelector('.exp-company').value.trim();
+      const period = card.querySelector('.exp-period').value.trim();
+      const location = card.querySelector('.exp-location').value.trim();
+      const rawBullets = card.querySelector('.exp-bullets').value;
+      const bullets = rawBullets.split('\n').map(b => b.trim()).filter(Boolean);
+      const rawSkills = card.querySelector('.exp-skills').value;
+      const skills = rawSkills.split(',').map(s => s.trim()).filter(Boolean);
+
+      updated.push({ role, company, period, location, bullets, skills });
+    });
+
+    currentContent.experience = updated;
+    saveActiveContent(currentContent);
+    showToast('All experience timeline entries saved.');
+  });
+}
+
+/* ==========================================================================
+   TAB 5: FEATURED PROJECTS & CASE STUDIES
+   ========================================================================== */
+function renderProjectsTab() {
+  const container = document.getElementById('projects-items-container');
+  const btnAdd = document.getElementById('btn-add-project');
+  const btnSave = document.getElementById('btn-save-projects');
+  if (!container) return;
+
+  function renderList() {
+    const list = currentContent.projects || [];
+    container.innerHTML = list.map((proj, idx) => `
+      <div class="item-row proj-item" data-idx="${idx}">
+        <div class="item-row-header">
+          <span class="item-row-title">${proj.title || 'Untitled Project'} (${proj.category || 'General'})</span>
+          <button type="button" class="btn-remove-item btn-del-proj" data-idx="${idx}">
+            <i data-lucide="trash-2"></i> Delete
+          </button>
+        </div>
+
+        <div class="form-2col" style="margin-bottom: var(--space-4);">
+          <div>
+            <label class="admin-label">Project Title</label>
+            <input type="text" class="admin-input proj-title" value="${proj.title || ''}">
+          </div>
+          <div>
+            <label class="admin-label">Category</label>
+            <input type="text" class="admin-input proj-category" value="${proj.category || 'ERP / Systems'}">
+          </div>
+        </div>
+
+        <div class="form-2col" style="margin-bottom: var(--space-4);">
+          <div>
+            <label class="admin-label">Badge Tag (e.g. Featured System)</label>
+            <input type="text" class="admin-input proj-badge" value="${proj.badge || ''}">
+          </div>
+          <div>
+            <label class="admin-label">My Role</label>
+            <input type="text" class="admin-input proj-role" value="${proj.role || 'Lead Systems Architect'}">
+          </div>
+        </div>
+
+        <div style="margin-bottom: var(--space-4);">
+          <label class="admin-label">Card Summary Description</label>
+          <textarea class="admin-textarea proj-summary" rows="2">${proj.summary || ''}</textarea>
+        </div>
+
+        <div class="form-2col" style="margin-bottom: var(--space-4);">
+          <div>
+            <label class="admin-label">Measurable Outcome</label>
+            <input type="text" class="admin-input proj-outcome" value="${proj.outcome || ''}">
+          </div>
+          <div>
+            <label class="admin-label">Thumbnail URL</label>
+            <input type="text" class="admin-input proj-thumbnail" value="${proj.thumbnail || 'assets/images/nexis_erp_thumbnail.png'}">
+          </div>
+        </div>
+
+        <div class="form-2col" style="margin-bottom: var(--space-4);">
+          <div>
+            <label class="admin-label">GitHub Repository URL</label>
+            <input type="url" class="admin-input proj-github" value="${proj.github || 'https://github.com'}">
+          </div>
+          <div>
+            <label class="admin-label">Tech Tags (Comma Separated)</label>
+            <input type="text" class="admin-input proj-tags" value="${(proj.tags || []).join(', ')}">
+          </div>
+        </div>
+
+        <!-- Case Study Sub-Section -->
+        <div style="background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); margin-top: var(--space-4);">
+          <h4 style="font-size: var(--text-xs); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: var(--space-3);">
+            Case Study Modal Content
+          </h4>
+
+          <div style="margin-bottom: var(--space-3);">
+            <label class="admin-label">1. Problem Statement</label>
+            <textarea class="admin-textarea cs-problem" rows="2">${proj.caseStudy?.problem || ''}</textarea>
+          </div>
+
+          <div style="margin-bottom: var(--space-3);">
+            <label class="admin-label">2. Approach &amp; Engineering Solution</label>
+            <textarea class="admin-textarea cs-solution" rows="2">${proj.caseStudy?.solution || ''}</textarea>
+          </div>
+
+          <div style="margin-bottom: var(--space-3);">
+            <label class="admin-label">3. Systems Architecture String</label>
+            <input type="text" class="admin-input cs-architecture" value="${proj.caseStudy?.architecture || ''}">
+          </div>
+
+          <div>
+            <label class="admin-label">4. Results Bullets (One metric result per line)</label>
+            <textarea class="admin-textarea cs-results" rows="3">${(proj.caseStudy?.results || []).join('\n')}</textarea>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.btn-del-proj').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        currentContent.projects.splice(idx, 1);
+        renderList();
+        showToast('Project removed.');
+      });
+    });
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  renderList();
+
+  btnAdd?.addEventListener('click', () => {
+    currentContent.projects = currentContent.projects || [];
+    currentContent.projects.push({
+      id: `project-${Date.now()}`,
+      title: "New Cloud System",
+      category: "Backend & Cloud",
+      badge: "Production System",
+      summary: "High-performance distributed system architecture handling high throughput.",
+      role: "Lead Systems Architect",
+      outcome: "Reduced latency by 75%; saved $50k/yr in compute costs",
+      thumbnail: "assets/images/opsflow_thumbnail.png",
+      github: "https://github.com",
+      tags: ["Go", "Kubernetes", "Redis", "Docker"],
+      caseStudy: {
+        problem: "Bottlenecks during heavy transaction volume.",
+        solution: "Decoupled transaction handling via Redis Queue workers.",
+        architecture: "Client -> Go API -> Redis -> Database",
+        results: ["Sub-20ms response time", "99.99% uptime"]
+      }
+    });
+    renderList();
+    showToast('New project created.');
+  });
+
+  btnSave?.addEventListener('click', () => {
+    const updated = [];
+    container.querySelectorAll('.proj-item').forEach((card, idx) => {
+      const orig = currentContent.projects[idx] || {};
+      const title = card.querySelector('.proj-title').value.trim();
+      const category = card.querySelector('.proj-category').value.trim();
+      const badge = card.querySelector('.proj-badge').value.trim();
+      const role = card.querySelector('.proj-role').value.trim();
+      const summary = card.querySelector('.proj-summary').value.trim();
+      const outcome = card.querySelector('.proj-outcome').value.trim();
+      const thumbnail = card.querySelector('.proj-thumbnail').value.trim();
+      const github = card.querySelector('.proj-github').value.trim();
+      const rawTags = card.querySelector('.proj-tags').value;
+      const tags = rawTags.split(',').map(t => t.trim()).filter(Boolean);
+
+      const csProblem = card.querySelector('.cs-problem').value.trim();
+      const csSolution = card.querySelector('.cs-solution').value.trim();
+      const csArchitecture = card.querySelector('.cs-architecture').value.trim();
+      const rawResults = card.querySelector('.cs-results').value;
+      const csResults = rawResults.split('\n').map(r => r.trim()).filter(Boolean);
+
+      updated.push({
+        id: orig.id || `proj-${idx}`,
+        title,
+        category,
+        badge,
+        role,
+        summary,
+        outcome,
+        thumbnail,
+        github,
+        tags,
+        caseStudy: {
+          problem: csProblem,
+          solution: csSolution,
+          architecture: csArchitecture,
+          results: csResults
+        }
+      });
+    });
+
+    currentContent.projects = updated;
+    saveActiveContent(currentContent);
+    showToast('All projects and case studies saved.');
+  });
+}
+
+/* ==========================================================================
+   TAB 6: SKILLS MATRIX
+   ========================================================================== */
+function renderSkillsTab() {
+  const container = document.getElementById('skills-items-container');
+  const btnAdd = document.getElementById('btn-add-skill-category');
+  const btnSave = document.getElementById('btn-save-skills');
+  if (!container) return;
+
+  function renderList() {
+    const skillsObj = currentContent.skills || {};
+    container.innerHTML = Object.entries(skillsObj).map(([cat, skills], idx) => `
+      <div class="item-row skill-cat-row" data-idx="${idx}">
+        <div class="item-row-header">
+          <input type="text" class="admin-input skill-cat-name" value="${cat}" style="max-width: 320px; font-weight: var(--font-semibold);">
+          <button type="button" class="btn-remove-item btn-del-skill-cat" data-cat="${cat}">
+            <i data-lucide="trash-2"></i> Remove Category
+          </button>
+        </div>
+        <div>
+          <label class="admin-label">Skills (Comma-separated tags)</label>
+          <textarea class="admin-textarea skill-cat-tags" rows="2">${(skills || []).join(', ')}</textarea>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.btn-del-skill-cat').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.getAttribute('data-cat');
+        delete currentContent.skills[cat];
+        renderList();
+        showToast(`Category "${cat}" removed.`);
+      });
+    });
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  renderList();
+
+  btnAdd?.addEventListener('click', () => {
+    currentContent.skills = currentContent.skills || {};
+    const newName = `New Category ${Object.keys(currentContent.skills).length + 1}`;
+    currentContent.skills[newName] = ["Technology 1", "Technology 2"];
+    renderList();
+    showToast('New skill category added.');
+  });
+
+  btnSave?.addEventListener('click', () => {
+    const updated = {};
+    container.querySelectorAll('.skill-cat-row').forEach(card => {
+      const catName = card.querySelector('.skill-cat-name').value.trim();
+      const rawTags = card.querySelector('.skill-cat-tags').value;
+      const tags = rawTags.split(',').map(t => t.trim()).filter(Boolean);
+      if (catName) {
+        updated[catName] = tags;
+      }
+    });
+
+    currentContent.skills = updated;
+    saveActiveContent(currentContent);
+    showToast('Skills matrix saved.');
+  });
+}
+
+/* ==========================================================================
+   TAB 7: WRITING & OPEN SOURCE
+   ========================================================================== */
+function renderWritingTab() {
+  const articlesContainer = document.getElementById('articles-items-container');
+  const reposContainer = document.getElementById('repos-items-container');
+  const btnAddArt = document.getElementById('btn-add-article');
+  const btnAddRepo = document.getElementById('btn-add-repo');
+  const btnSave = document.getElementById('btn-save-writing');
+
+  // Pre-fill GitHub stats
+  const metrics = currentContent.openSource?.metrics || { stars: 482, contributions: "820+", repos: 34 };
+  setValue('os-stars-input', metrics.stars || 0);
+  setValue('os-contribs-input', metrics.contributions || '0');
+  setValue('os-repos-input', metrics.repos || 0);
+
+  // Render Articles
+  function renderArticles() {
+    const articles = currentContent.writing || [];
+    articlesContainer.innerHTML = articles.map((art, idx) => `
+      <div class="item-row art-item" data-idx="${idx}" style="margin-bottom: var(--space-3);">
+        <div class="item-row-header">
+          <span class="item-row-title">${art.title || 'Untitled Article'}</span>
+          <button type="button" class="btn-remove-item btn-del-art" data-idx="${idx}">
+            <i data-lucide="trash-2"></i> Delete
+          </button>
+        </div>
+        <div class="form-2col" style="margin-bottom: var(--space-3);">
+          <div>
+            <label class="admin-label">Article Title</label>
+            <input type="text" class="admin-input art-title" value="${art.title || ''}">
+          </div>
+          <div>
+            <label class="admin-label">Date Published</label>
+            <input type="text" class="admin-input art-date" value="${art.date || ''}">
+          </div>
+        </div>
+        <div style="margin-bottom: var(--space-3);">
+          <label class="admin-label">Excerpt Summary</label>
+          <textarea class="admin-textarea art-excerpt" rows="2">${art.excerpt || ''}</textarea>
+        </div>
+        <div>
+          <label class="admin-label">Link URL</label>
+          <input type="text" class="admin-input art-link" value="${art.link || '#'}">
+        </div>
+      </div>
+    `).join('');
+
+    articlesContainer.querySelectorAll('.btn-del-art').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        currentContent.writing.splice(idx, 1);
+        renderArticles();
+      });
+    });
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  // Render Repos
+  function renderRepos() {
+    const repos = currentContent.openSource?.repos || [];
+    reposContainer.innerHTML = repos.map((r, idx) => `
+      <div class="item-row repo-item" data-idx="${idx}" style="margin-bottom: var(--space-3);">
+        <div class="item-row-header">
+          <span class="item-row-title">${r.name || 'repository'}</span>
+          <button type="button" class="btn-remove-item btn-del-repo" data-idx="${idx}">
+            <i data-lucide="trash-2"></i> Delete
+          </button>
+        </div>
+        <div class="form-2col" style="margin-bottom: var(--space-3);">
+          <div>
+            <label class="admin-label">Repository Name</label>
+            <input type="text" class="admin-input repo-name" value="${r.name || ''}">
+          </div>
+          <div>
+            <label class="admin-label">Stars Count</label>
+            <input type="number" class="admin-input repo-stars" value="${r.stars || 0}">
+          </div>
+        </div>
+        <div style="margin-bottom: var(--space-3);">
+          <label class="admin-label">Description</label>
+          <input type="text" class="admin-input repo-desc" value="${r.desc || ''}">
+        </div>
+        <div>
+          <label class="admin-label">Tech Tags (Comma-separated)</label>
+          <input type="text" class="admin-input repo-tags" value="${(r.tags || []).join(', ')}">
+        </div>
+      </div>
+    `).join('');
+
+    reposContainer.querySelectorAll('.btn-del-repo').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        currentContent.openSource.repos.splice(idx, 1);
+        renderRepos();
+      });
+    });
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  renderArticles();
+  renderRepos();
+
+  btnAddArt?.addEventListener('click', () => {
+    currentContent.writing = currentContent.writing || [];
+    currentContent.writing.push({
+      id: `art-${Date.now()}`,
+      title: "New Systems Architecture Breakdown",
+      date: "October 2026",
+      excerpt: "Deep architectural notes exploring performance scaling and concurrency.",
+      link: "#"
+    });
+    renderArticles();
+  });
+
+  btnAddRepo?.addEventListener('click', () => {
+    currentContent.openSource = currentContent.openSource || {};
+    currentContent.openSource.repos = currentContent.openSource.repos || [];
+    currentContent.openSource.repos.push({
+      name: "new-distributed-package",
+      stars: 100,
+      desc: "High-performance systems utility in Go / Python.",
+      tags: ["Go", "Distributed"],
+      link: "https://github.com"
+    });
+    renderRepos();
+  });
+
+  btnSave?.addEventListener('click', () => {
+    // Save Articles
+    const updatedArticles = [];
+    articlesContainer.querySelectorAll('.art-item').forEach(card => {
+      updatedArticles.push({
+        title: card.querySelector('.art-title').value.trim(),
+        date: card.querySelector('.art-date').value.trim(),
+        excerpt: card.querySelector('.art-excerpt').value.trim(),
+        link: card.querySelector('.art-link').value.trim()
+      });
+    });
+    currentContent.writing = updatedArticles;
+
+    // Save Repos
+    const updatedRepos = [];
+    reposContainer.querySelectorAll('.repo-item').forEach(card => {
+      const rawTags = card.querySelector('.repo-tags').value;
+      updatedRepos.push({
+        name: card.querySelector('.repo-name').value.trim(),
+        stars: parseInt(card.querySelector('.repo-stars').value, 10) || 0,
+        desc: card.querySelector('.repo-desc').value.trim(),
+        tags: rawTags.split(',').map(t => t.trim()).filter(Boolean),
+        link: "https://github.com"
+      });
+    });
+
+    currentContent.openSource = {
+      metrics: {
+        stars: parseInt(getValue('os-stars-input'), 10) || 0,
+        contributions: getValue('os-contribs-input'),
+        repos: parseInt(getValue('os-repos-input'), 10) || 0
+      },
+      repos: updatedRepos
+    };
+
+    saveActiveContent(currentContent);
+    showToast('Writing & Open Source settings saved.');
+  });
+}
+
+/* ==========================================================================
+   TAB 8: CONTACT SETTINGS
+   ========================================================================== */
+function renderContactTab() {
+  const form = document.getElementById('form-contact');
+  if (!form) return;
+
+  const contact = currentContent.contact || {};
+  setValue('contact-heading', contact.heading || 'Start a Conversation');
+  setValue('contact-desc', contact.description || '');
+  setValue('contact-email-input', contact.email || currentContent.profile?.email || '');
+  setValue('contact-loc-input', contact.location || currentContent.profile?.location || '');
+  setValue('contact-resp-input', contact.responseTime || 'Usually within 24 hours');
+  setValue('contact-pref-input', contact.preferredChannels || 'Email, LinkedIn, GitHub');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    currentContent.contact = {
+      heading: getValue('contact-heading'),
+      description: getValue('contact-desc'),
+      email: getValue('contact-email-input'),
+      location: getValue('contact-loc-input'),
+      responseTime: getValue('contact-resp-input'),
+      preferredChannels: getValue('contact-pref-input')
+    };
+
+    saveActiveContent(currentContent);
+    showToast('Contact preferences saved.');
+  });
+}
+
+/* ==========================================================================
+   TAB 9: DEPLOY, EXPORT & BACKUP
+   ========================================================================== */
+function renderDeployTab() {
+  const btnDownloadContent = document.getElementById('btn-download-content-js');
+  const btnExportJson = document.getElementById('btn-export-json');
+  const inputImportJson = document.getElementById('input-import-json');
+  const btnFactoryReset = document.getElementById('btn-factory-reset');
+
+  // 1. Download updated content.js
+  btnDownloadContent?.addEventListener('click', () => {
+    const fileContent = generateContentJsFileString(currentContent, currentFlags);
+    triggerDownload('content.js', fileContent, 'text/javascript');
+    showToast('Downloaded content.js. Replace data/content.js for zero-code deploy.');
+  });
+
+  // 2. Export JSON Config
+  btnExportJson?.addEventListener('click', () => {
+    const backupData = {
+      version: "2.0.0",
+      exportedAt: new Date().toISOString(),
+      content: currentContent,
+      featureFlags: currentFlags
+    };
+    triggerDownload('portfolio-config-backup.json', JSON.stringify(backupData, null, 2), 'application/json');
+    showToast('Exported portfolio-config-backup.json.');
+  });
+
+  // 3. Import JSON Config
+  inputImportJson?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        if (imported.content) {
+          currentContent = imported.content;
+          saveActiveContent(currentContent);
+        }
+        if (imported.featureFlags) {
+          currentFlags = imported.featureFlags;
+          saveActiveFeatureFlags(currentFlags);
+        }
+        showToast('Configuration imported successfully! Refreshing view...');
+        setTimeout(() => window.location.reload(), 1000);
+      } catch (err) {
+        showToast('Failed to parse JSON backup file.', 'error');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  // 4. Factory Reset
+  btnFactoryReset?.addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset all data and feature toggles to original defaults? This will erase your custom changes.')) {
+      resetPortfolioStorage();
+      showToast('All settings reset to defaults. Refreshing...');
+      setTimeout(() => window.location.reload(), 1000);
+    }
+  });
+}
+
+/* ==========================================================================
+   GLOBAL SAVE HELPER
+   ========================================================================== */
+function saveAllData() {
+  saveActiveContent(currentContent);
+  saveActiveFeatureFlags(currentFlags);
+  showToast('All portfolio modifications saved to browser storage.');
+}
+
+/* ==========================================================================
+   CONTENT.JS CODE GENERATOR (FOR ONE-CLICK PERMANENT DEPLOYMENT)
+   ========================================================================== */
+function generateContentJsFileString(content, flags) {
+  return `/**
+ * Central Content Store & Feature Configuration
+ * Generated via Portfolio Admin Dashboard on ${new Date().toISOString()}
+ * Single source of truth for portfolio profile, navigation, metrics, experience, projects, and skills.
+ */
+
+export const CONTENT = ${JSON.stringify(content, null, 2)};
+
+/**
+ * Default Feature & Section Visibility Flags
+ */
+export const DEFAULT_FEATURE_FLAGS = ${JSON.stringify(flags, null, 2)};
+
+/**
+ * Safe deep merge helper for JSON structures
+ */
+function deepMerge(target, source) {
+  if (!source || typeof source !== 'object') return target;
+  const result = Array.isArray(target) ? [...target] : { ...target };
+
+  for (const key of Object.keys(source)) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      result[key] = deepMerge(target[key] || {}, source[key]);
+    } else {
+      result[key] = source[key];
+    }
+  }
+  return result;
+}
+
+export function getActiveContent() {
+  try {
+    const raw = localStorage.getItem('portfolio_custom_content');
+    if (!raw) return CONTENT;
+    const custom = JSON.parse(raw);
+    return deepMerge(CONTENT, custom);
+  } catch (e) {
+    return CONTENT;
+  }
+}
+
+export function getActiveFeatureFlags() {
+  try {
+    const raw = localStorage.getItem('portfolio_feature_flags');
+    if (!raw) return DEFAULT_FEATURE_FLAGS;
+    const custom = JSON.parse(raw);
+    return deepMerge(DEFAULT_FEATURE_FLAGS, custom);
+  } catch (e) {
+    return DEFAULT_FEATURE_FLAGS;
+  }
+}
+
+export function saveActiveContent(content) {
+  try {
+    localStorage.setItem('portfolio_custom_content', JSON.stringify(content));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export function saveActiveFeatureFlags(flags) {
+  try {
+    localStorage.setItem('portfolio_feature_flags', JSON.stringify(flags));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export function resetPortfolioStorage() {
+  try {
+    localStorage.removeItem('portfolio_custom_content');
+    localStorage.removeItem('portfolio_feature_flags');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+`;
+}
+
+/* ==========================================================================
+   UTILITY HELPERS
+   ========================================================================== */
+function getValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function setValue(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function triggerDownload(filename, text, mimeType) {
+  const blob = new Blob([text], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('admin-toast');
+  const toastMsg = document.getElementById('toast-message');
+  if (!toast || !toastMsg) return;
+
+  toastMsg.textContent = msg;
+  toast.className = `admin-toast show ${type}`;
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2800);
+}
