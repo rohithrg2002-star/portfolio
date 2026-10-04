@@ -2,6 +2,10 @@
 chat_progress.md
 project_progress.md
 
+# Dependencies & Vercel
+node_modules/
+.vercel/
+
 # System & OS Files
 .DS_Store
 Thumbs.db

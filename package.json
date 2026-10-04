@@ -1,0 +1,16 @@
+{
+  "name": "porfolio",
+  "version": "1.0.0",
+  "description": "A modern, high-performance, accessible portfolio built with semantic HTML5, CSS design tokens, and modular ES JavaScript. Designed following clean engineering principles inspired by Linear, Vercel, and Brittany Chiang—prioritizing systems proof, measurable outcomes, and recruiter clarity in the first 30 seconds.",
+  "main": "admin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
